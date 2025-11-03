@@ -9,6 +9,7 @@
 			<file>tests/phpunit/ApiStreamTest.php</file>
 			<file>tests/phpunit/OpenAIProviderTest.php</file>
 			<file>tests/phpunit/AnthropicProviderTest.php</file>
+			<file>tests/phpunit/DesignTokensTest.php</file>
 		</testsuite>
 	</testsuites>
 </phpunit>

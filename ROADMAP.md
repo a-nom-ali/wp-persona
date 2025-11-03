@@ -19,7 +19,7 @@
 - [x] Build frontend chat widget (state management, SSE event piping, persona switching).
 - [x] Add PHPUnit/JS smoke tests covering provider resolution and streaming error paths.
 - [x] Provide Gutenberg block controls for persona selection and display options.
-- [ ] Ship design token registry and CSS variable bridge for block themes.
+- [x] Ship design token registry and CSS variable bridge for block themes.
 
 ## 0.4.0 – Integrations & Extensibility
 - [x] Ship optional remote provider adapters (OpenAI, Anthropic) reusing provider abstraction.

@@ -62,6 +62,7 @@ final class Plugin {
 		require_once AI_PERSONA_PLUGIN_DIR . 'includes/admin/metaboxes.php';
 		require_once AI_PERSONA_PLUGIN_DIR . 'includes/admin/settings.php';
 		require_once AI_PERSONA_PLUGIN_DIR . 'includes/frontend/chat-widget.php';
+		require_once AI_PERSONA_PLUGIN_DIR . 'includes/frontend/design-tokens.php';
 		require_once AI_PERSONA_PLUGIN_DIR . 'includes/frontend/api-endpoints.php';
 		require_once AI_PERSONA_PLUGIN_DIR . 'includes/providers/interface-provider.php';
 		require_once AI_PERSONA_PLUGIN_DIR . 'includes/providers/class-null-provider.php';

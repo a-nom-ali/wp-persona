@@ -21,6 +21,7 @@ require_once AI_PERSONA_PLUGIN_DIR . 'includes/providers/class-null-provider.php
 require_once AI_PERSONA_PLUGIN_DIR . 'includes/providers/class-ollama-provider.php';
 require_once AI_PERSONA_PLUGIN_DIR . 'includes/providers/class-openai-provider.php';
 require_once AI_PERSONA_PLUGIN_DIR . 'includes/providers/class-anthropic-provider.php';
+require_once AI_PERSONA_PLUGIN_DIR . 'includes/frontend/design-tokens.php';
 
 // -----------------------------------------------------------------------------
 // Core utility shims.

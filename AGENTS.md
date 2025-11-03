@@ -10,6 +10,8 @@ Keep the local Ollama daemon available on `http://localhost:11434` before runnin
 ## Coding Style & Naming Conventions
 Follow WordPress PHPCS rulesets (`WordPress-Core`, `WordPress-Docs`) with 4-space indentation for PHP, snake_case function names, and prefix everything with `ai_persona_` to avoid collisions. For JavaScript, stick to ESNext modules, 2-space indentation, and descriptive action/filter handles (e.g., `ai-persona/chat-widget`). CSS selectors should be BEM-flavored (`.ai-persona__chat-header`) and draw from the plugin’s lightweight design tokens so we can extend WordPress block styles via CSS variables. Keep hooks self-documenting and add inline comments when behavior differs from WordPress defaults.
 
+Design tokens are centralized in `includes/frontend/design-tokens.php` and exposed via the `ai_persona_design_tokens` filter—extend or override values there instead of hardcoding new custom properties.
+
 ## Testing Guidelines
 Target PHPUnit-based integration tests via the WordPress testing suite stored under `tests/phpunit/` (create the directory when you add your first test). Name test classes after the component under test (`Test_Prompt_Builder`). For frontend widgets, add Jest or Playwright coverage under `tests/js/` as the UI stabilizes. Ensure new behavior includes happy-path and failure cases, and document manual QA steps in the pull request when automated coverage is pending.
 
