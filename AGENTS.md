@@ -36,3 +36,4 @@ The default Ollama provider runs locally and avoids transmitting content externa
 - Plugin currently installed on `http://campaign-forge.local` with the plugin directory symlinked to this repository folder.
 - Gutenberg chat block now exposes persona selection and header controls via the inspector; create at least one published persona before adding the block to avoid zero-state UX hiccups.
 - REST endpoints now accept `persona_id` and automatically assemble the system prompt; pass user inputs as `prompt` and keep nonces/API auth ready for streaming endpoints.
+- Each persona edit screen exposes an **Export Persona JSON** button (and REST route `GET /wp-json/ai-persona/v1/persona/{id}`) returning the structured data and compiled prompt for automation workflows.

@@ -134,6 +134,19 @@ function render_metabox( $post ) {
 			?></textarea>
 		</p>
 	</noscript>
+
+	<?php if ( $post->ID ) :
+		$export_url = add_query_arg(
+			array( '_wpnonce' => wp_create_nonce( 'wp_rest' ) ),
+			rest_url( 'ai-persona/v1/persona/' . $post->ID )
+		);
+		?>
+		<p class="ai-persona-export">
+			<a class="button button-secondary" href="<?php echo esc_url( $export_url ); ?>" target="_blank" rel="noopener noreferrer">
+				<?php esc_html_e( 'Export Persona JSON', 'ai-persona' ); ?>
+			</a>
+		</p>
+	<?php endif; ?>
 	<?php
 }
 

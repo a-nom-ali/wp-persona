@@ -218,3 +218,15 @@ When `persona_id` is supplied, the endpoint loads structured persona data, compi
 The streaming endpoint (`/stream`) mirrors the same parameters and emits Server-Sent Events (`message`, `error`, `complete`).
 
 Consumers that wish to supply a fully custom system prompt can omit `persona_id` and pass `system_prompt` or continue using the legacy `prompt` value.
+
+### Persona Export
+
+Fetch the structured persona payload (including compiled prompt) via:
+
+```bash
+curl "https://example.com/wp-json/ai-persona/v1/persona/123?_wpnonce=<nonce>"
+```
+
+The response contains the normalized persona fields and the compiled prompt consumers can persist or ship to third-party systems.
+
+Within wp-admin, an **Export Persona JSON** button is available in the persona editor once the post is saved.

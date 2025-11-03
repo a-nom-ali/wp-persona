@@ -36,4 +36,19 @@ class ApiPermissionsTest extends TestCase {
         $this->assertInstanceOf( WP_Error::class, $result );
         $this->assertSame( 'You are not allowed to generate persona responses.', $result->get_error_message() );
     }
+
+    public function test_handle_persona_export_returns_payload() {
+        ai_persona_tests_set_current_user_can( true );
+
+        ai_persona_tests_set_post_meta( 456, 'ai_persona_role', 'Test role' );
+        ai_persona_tests_set_post_meta( 456, 'ai_persona_guidelines', array( 'Be concise' ) );
+
+        $request  = new WP_REST_Request( array( 'id' => 456 ) );
+        $response = Ai_Persona\Frontend\handle_persona_export( $request );
+        $data     = $response->get_data();
+
+        $this->assertSame( 456, $data['id'] );
+        $this->assertSame( 'Test role', $data['persona']['role'] );
+        $this->assertStringContainsString( 'Test role', $data['compiled_prompt'] );
+    }
 }

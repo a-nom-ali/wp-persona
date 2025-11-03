@@ -35,6 +35,16 @@ function register_routes() {
 			'permission_callback' => __NAMESPACE__ . '\\permissions_check',
 		)
 	);
+
+	register_rest_route(
+		'ai-persona/v1',
+		'/persona/(?P<id>\\d+)',
+		array(
+			'methods'             => 'GET',
+			'callback'            => __NAMESPACE__ . '\\handle_persona_export',
+			'permission_callback' => __NAMESPACE__ . '\\permissions_check',
+		)
+	);
 }
 add_action( 'rest_api_init', __NAMESPACE__ . '\\register_routes' );
 
@@ -174,7 +184,45 @@ function handle_stream( WP_REST_Request $request ) {
 		emit_sse( 'complete', $aggregate );
 	}
 
-end_stream();
+	end_stream();
+}
+
+/**
+ * Return structured persona export payload.
+ *
+ * @param WP_REST_Request $request Request object.
+ * @return WP_REST_Response
+ */
+function handle_persona_export( WP_REST_Request $request ) {
+	$persona_id = absint( $request->get_param( 'id' ) );
+
+	if ( ! $persona_id ) {
+		return new WP_REST_Response(
+			array( 'error' => __( 'Persona ID is required.', 'ai-persona' ) ),
+			400
+		);
+	}
+
+	$persona = get_persona_data( $persona_id );
+
+	if ( ! $persona ) {
+		return new WP_REST_Response(
+			array( 'error' => __( 'Persona not found.', 'ai-persona' ) ),
+			404
+		);
+	}
+
+	$compiled = compile_persona_prompt( $persona, array( 'persona_id' => $persona_id ) );
+
+	$payload = array(
+		'id'              => $persona_id,
+		'persona'         => $persona,
+		'compiled_prompt' => $compiled,
+		'generated_at'    => gmdate( 'c' ),
+		'plugin_version'  => defined( 'AI_PERSONA_VERSION' ) ? AI_PERSONA_VERSION : 'unknown',
+	);
+
+	return new WP_REST_Response( $payload, 200 );
 }
 
 /**
