@@ -73,4 +73,51 @@ class ApiPersonaCrudTest extends TestCase {
         $stored = ai_persona_tests_get_post( $created['id'] );
         $this->assertSame( 'Creative Coach Updated', $stored['post_title'] );
     }
+
+    public function test_handle_persona_delete_removes_post() {
+        $create_request = new WP_REST_Request(
+            array(
+                'title'   => 'Persona to delete',
+                'persona' => array(
+                    'role'       => 'Role',
+                    'guidelines' => array( 'One' ),
+                ),
+            )
+        );
+
+        $create_response = Ai_Persona\Frontend\handle_persona_create( $create_request );
+        $created         = $create_response->get_data();
+
+        $delete_request = new WP_REST_Request( array( 'id' => $created['id'] ) );
+        $delete_response = Ai_Persona\Frontend\handle_persona_delete( $delete_request );
+        $delete_data     = $delete_response->get_data();
+
+        $this->assertTrue( $delete_data['deleted'] );
+        $this->assertNull( ai_persona_tests_get_post( $created['id'] ) );
+    }
+
+    public function test_handle_persona_duplicate_copies_meta() {
+        $create_request = new WP_REST_Request(
+            array(
+                'title'   => 'Source Persona',
+                'status'  => 'publish',
+                'persona' => array(
+                    'role'       => 'Source role',
+                    'guidelines' => array( 'Guideline one' ),
+                    'constraints'=> array( 'Constraint one' ),
+                ),
+            )
+        );
+
+        $create_response = Ai_Persona\Frontend\handle_persona_create( $create_request );
+        $created         = $create_response->get_data();
+
+        $duplicate_request = new WP_REST_Request( array( 'id' => $created['id'] ) );
+        $duplicate_response = Ai_Persona\Frontend\handle_persona_duplicate( $duplicate_request );
+        $duplicate_data     = $duplicate_response->get_data();
+
+        $this->assertNotEquals( $created['id'], $duplicate_data['id'] );
+        $this->assertSame( 'Source role', $duplicate_data['persona']['role'] );
+        $this->assertStringContainsString( '(Copy)', $duplicate_data['title'] );
+    }
 }

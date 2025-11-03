@@ -418,6 +418,23 @@ if ( ! function_exists( 'get_post' ) ) {
     }
 }
 
+if ( ! function_exists( 'wp_delete_post' ) ) {
+    function wp_delete_post( $post_id, $force_delete = false ) { // phpcs:ignore
+        global $ai_persona_tests_posts, $ai_persona_tests_meta_store;
+
+        $post_id = absint( $post_id );
+
+        if ( ! isset( $ai_persona_tests_posts[ $post_id ] ) ) {
+            return false;
+        }
+
+        unset( $ai_persona_tests_posts[ $post_id ] );
+        unset( $ai_persona_tests_meta_store[ $post_id ] );
+
+        return true;
+    }
+}
+
 // -----------------------------------------------------------------------------
 // HTTP stub for controlling wp_remote_post responses.
 // -----------------------------------------------------------------------------

@@ -260,3 +260,8 @@ curl -X POST https://example.com/wp-json/ai-persona/v1/persona \
 ```
 
 Update an existing persona via `POST /wp-json/ai-persona/v1/persona/{id}` with the fields you want to replace. Both endpoints return the sanitized persona payload and the compiled prompt so that automation workflows can store or distribute the same data structure used in wp-admin.
+
+Additional helpers:
+
+- `DELETE /wp-json/ai-persona/v1/persona/{id}` removes a persona (and its structured data).
+- `POST /wp-json/ai-persona/v1/persona/{id}/duplicate` creates a copy; optionally pass `title` or `status` in the body to override defaults.

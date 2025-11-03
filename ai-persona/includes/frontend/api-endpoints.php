@@ -67,6 +67,26 @@ function register_routes() {
 			'permission_callback' => __NAMESPACE__ . '\\permissions_check',
 		)
 	);
+
+	register_rest_route(
+		'ai-persona/v1',
+		'/persona/(?P<id>\\d+)',
+		array(
+			'methods'             => 'DELETE',
+			'callback'            => __NAMESPACE__ . '\\handle_persona_delete',
+			'permission_callback' => __NAMESPACE__ . '\\permissions_check',
+		)
+	);
+
+	register_rest_route(
+		'ai-persona/v1',
+		'/persona/(?P<id>\\d+)/duplicate',
+		array(
+			'methods'             => 'POST',
+			'callback'            => __NAMESPACE__ . '\\handle_persona_duplicate',
+			'permission_callback' => __NAMESPACE__ . '\\permissions_check',
+		)
+	);
 }
 add_action( 'rest_api_init', __NAMESPACE__ . '\\register_routes' );
 
@@ -365,6 +385,80 @@ function handle_persona_update( WP_REST_Request $request ) {
 	$data = build_persona_response( $persona_id );
 
 	return new WP_REST_Response( $data, 200 );
+}
+
+/**
+ * Delete a persona via REST.
+ *
+ * @param WP_REST_Request $request Request object.
+ * @return WP_REST_Response
+ */
+function handle_persona_delete( WP_REST_Request $request ) {
+	$persona_id = absint( $request->get_param( 'id' ) );
+
+	if ( ! $persona_id || 'ai_persona' !== get_post_type( $persona_id ) ) {
+		return new WP_REST_Response(
+			array( 'error' => __( 'Persona not found.', 'ai-persona' ) ),
+			404
+		);
+	}
+
+	$result = wp_delete_post( $persona_id, true );
+
+	if ( ! $result ) {
+		return new WP_REST_Response(
+			array( 'error' => __( 'Failed to delete persona.', 'ai-persona' ) ),
+			500
+		);
+	}
+
+	return new WP_REST_Response( array( 'deleted' => true, 'id' => $persona_id ), 200 );
+}
+
+/**
+ * Duplicate a persona and return the new record.
+ *
+ * @param WP_REST_Request $request Request object.
+ * @return WP_REST_Response
+ */
+function handle_persona_duplicate( WP_REST_Request $request ) {
+	$persona_id = absint( $request->get_param( 'id' ) );
+
+	if ( ! $persona_id || 'ai_persona' !== get_post_type( $persona_id ) ) {
+		return new WP_REST_Response(
+			array( 'error' => __( 'Persona not found.', 'ai-persona' ) ),
+			404
+		);
+	}
+
+	$source   = get_post( $persona_id );
+	$persona  = get_persona_data( $persona_id );
+	$title    = $request->get_param( 'title' );
+	$new_title = $title ? sanitize_text_field( (string) $title ) : sprintf( __( '%s (Copy)', 'ai-persona' ), $source->post_title );
+
+	$new_status = sanitize_persona_status_param( $request->get_param( 'status' ), $source->post_status, false );
+
+	$new_post_id = wp_insert_post(
+		array(
+			'post_type'   => 'ai_persona',
+			'post_status' => $new_status,
+			'post_title'  => $new_title,
+		),
+		true
+	);
+
+	if ( is_wp_error( $new_post_id ) ) {
+		return new WP_REST_Response(
+			array( 'error' => $new_post_id->get_error_message() ),
+			500
+		);
+	}
+
+	save_persona_data( $new_post_id, $persona );
+
+	$data = build_persona_response( $new_post_id );
+
+	return new WP_REST_Response( $data, 201 );
 }
 
 /**

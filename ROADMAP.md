@@ -27,6 +27,7 @@
 - [ ] Add export/import flows (JSON + WordPress REST).
 - [ ] Document filters/actions; ship reference implementations for n8n and webhooks.
 - [ ] Implement WordPress-native authentication flows (nonces, application passwords) for external consumers.
+- [x] Provide REST automation endpoints for persona lifecycle (create/update/delete/duplicate).
 
 ## 1.0.0 – Release Hardening
 - [ ] Implement analytics + logging opt-in.
