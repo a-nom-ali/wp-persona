@@ -13,6 +13,10 @@ try {
 		throw new Error( 'Stream endpoint reference missing' );
 	}
 
+	if ( ! /fetch\(/.test( script ) ) {
+		throw new Error( 'Fallback fetch implementation missing' );
+	}
+
 	console.log( 'chat-streaming.test: passed' );
 } catch ( error ) {
 	console.error( 'chat-streaming.test: failed', error.message );
