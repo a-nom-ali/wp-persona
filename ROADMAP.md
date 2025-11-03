@@ -11,16 +11,19 @@
 - [ ] Flesh out structured prompt storage (role/guidelines/constraints/examples/variables).
 - [ ] Add autosave-aware React admin UI for prompt sections.
 - [ ] Implement validation and preview within wp-admin.
+- [ ] Document provider resolution filters so third parties can register clients.
 
 ## 0.3.0 – Chat Experience
-- [ ] Connect REST endpoint to API client with streaming support.
-- [ ] Build frontend chat widget (state management, retry logic, Persona switching).
+- [ ] Connect REST endpoint to provider abstraction with SSE streaming pipeline.
+- [ ] Build frontend chat widget (state management, SSE event piping, persona switching).
 - [ ] Provide Gutenberg block controls for persona selection and display options.
+- [ ] Ship design token registry and CSS variable bridge for block themes.
 
 ## 0.4.0 – Integrations & Extensibility
 - [ ] Abstract provider layer (OpenAI default, filterable for Anthropic/others).
 - [ ] Add export/import flows (JSON + WordPress REST).
 - [ ] Document filters/actions; ship reference implementations for n8n and webhooks.
+- [ ] Implement WordPress-native authentication flows (nonces, application passwords) for external consumers.
 
 ## 1.0.0 – Release Hardening
 - [ ] Implement analytics + logging opt-in.
@@ -32,3 +35,4 @@
 - [ ] AI-assisted prompt refinement wizard.
 - [ ] Persona template marketplace or syncing mechanism.
 - [ ] Fine-grained capability mapping for persona creation vs usage.
+- [ ] Enhanced analytics dashboard with aggregated metrics and privacy guardrails.

@@ -2,9 +2,15 @@
 
 Living log of uncertainties and decisions to clarify as the AI Persona plugin evolves. Reply inline or update this file when answers emerge.
 
-1. **Primary AI provider** – Should OpenAI remain the default, or do we target a provider-agnostic interface from the outset (e.g., Anthropic, Azure OpenAI)?
-2. **Streaming transport** – Do we prefer SSE, WebSockets, or WordPress Ajax for delivering streaming chat responses to the frontend widget?
-3. **Persona storage** – Is custom post meta sufficient for larger prompt payloads, or should we explore custom tables for performance/scalability?
-4. **Authentication strategy** – How will external integrations authenticate when hitting the REST `/ai-persona/v1/generate` endpoint (cookies, nonces, application passwords, custom tokens)?
-5. **Analytics expectations** – What level of telemetry (counts, durations, content snippets) is acceptable for persona usage tracking while preserving privacy?
-6. **Design system alignment** – Should the chat widget follow WordPress block styles, ship its own design tokens, or integrate with a third-party component library?
+## Active Questions
+
+_None at the moment. Add new items as they arise._
+
+## Resolved Answers
+
+1. **Primary AI provider** – Target a provider-agnostic interface from the outset so multiple vendors (OpenAI, Anthropic, Azure OpenAI) can plug in via filters.
+2. **Streaming transport** – Use Server-Sent Events (SSE) for delivering streaming chat responses.
+3. **Persona storage** – Custom post meta is sufficient for prompt payloads; monitor for performance issues before introducing custom tables.
+4. **Authentication strategy** – Follow the WordPress way: default to nonces/capabilities for logged-in flows and support Application Passwords (or similar core mechanisms) for external integrations.
+5. **Analytics expectations** – Use judgement to ship privacy-preserving aggregated metrics; avoid capturing raw prompt/response bodies unless explicitly opted in.
+6. **Design system alignment** – Ship a lightweight, WordPress-native design token layer that extends block styles via CSS variables without third-party frameworks.

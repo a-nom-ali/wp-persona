@@ -10,7 +10,7 @@
 			}
 
 			node.dataset.bootstrapped = 'true';
-			node.innerHTML = '<p>AI Persona chat placeholder.</p>';
+			node.innerHTML = '<p>AI Persona chat placeholder. SSE stream integration pending.</p>';
 		} );
 	};
 
