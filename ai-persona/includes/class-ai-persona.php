@@ -79,6 +79,7 @@ final class Plugin {
 		add_action( 'init', array( $this, 'register_block_types' ) );
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_editor_assets' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_frontend_assets' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_assets' ) );
 		add_filter( 'ai_persona_resolve_provider', array( $this, 'resolve_provider' ) );
 	}
 
@@ -197,6 +198,40 @@ final class Plugin {
 				'restUrl' => esc_url_raw( trailingslashit( rest_url( 'ai-persona/v1' ) ) ),
 				'nonce'   => wp_create_nonce( 'wp_rest' ),
 			)
+		);
+	}
+
+	/**
+	 * Enqueue admin scripts for persona authoring UI.
+	 *
+	 * @param string $hook Current admin hook.
+	 */
+	public function enqueue_admin_assets( $hook ) {
+		if ( ! in_array( $hook, array( 'post.php', 'post-new.php' ), true ) ) {
+			return;
+		}
+
+		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+
+		if ( ! $screen || 'ai_persona' !== $screen->post_type ) {
+			return;
+		}
+
+		$base_url = plugin_dir_url( AI_PERSONA_PLUGIN_FILE );
+
+		wp_enqueue_style(
+			'ai-persona-admin',
+			$base_url . 'assets/css/admin.css',
+			array( 'wp-components' ),
+			AI_PERSONA_VERSION
+		);
+
+		wp_enqueue_script(
+			'ai-persona-admin',
+			$base_url . 'assets/js/admin.js',
+			array( 'wp-element', 'wp-components', 'wp-i18n', 'wp-data', 'wp-compose' ),
+			AI_PERSONA_VERSION,
+			true
 		);
 	}
 }

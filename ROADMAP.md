@@ -9,9 +9,9 @@
 - [ ] Wire WordPress test suite bootstrap and sample tests for metabox saves.
 
 ## 0.2.0 – Persona Authoring
-- [ ] Flesh out structured prompt storage (role/guidelines/constraints/examples/variables).
-- [ ] Add autosave-aware React admin UI for prompt sections.
-- [ ] Implement validation and preview within wp-admin.
+- [x] Flesh out structured prompt storage (role/guidelines/constraints/examples/variables).
+- [x] Add autosave-aware React admin UI for prompt sections.
+- [x] Implement validation and preview within wp-admin.
 - [ ] Document provider resolution filters so third parties can register clients.
 
 ## 0.3.0 – Chat Experience
