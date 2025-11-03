@@ -18,7 +18,7 @@
 - [x] Connect REST endpoint to provider abstraction with SSE streaming pipeline.
 - [x] Build frontend chat widget (state management, SSE event piping, persona switching).
 - [x] Add PHPUnit/JS smoke tests covering provider resolution and streaming error paths.
-- [ ] Provide Gutenberg block controls for persona selection and display options.
+- [x] Provide Gutenberg block controls for persona selection and display options.
 - [ ] Ship design token registry and CSS variable bridge for block themes.
 
 ## 0.4.0 – Integrations & Extensibility

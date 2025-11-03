@@ -7,5 +7,19 @@
 	"icon": "format-chat",
 	"textdomain": "ai-persona",
 	"editorScript": "ai-persona-block-editor",
-	"render": "ai_persona_render_chat_block"
+	"render": "ai_persona_render_chat_block",
+	"attributes": {
+		"personaId": {
+			"type": "number",
+			"default": 0
+		},
+		"showHeader": {
+			"type": "boolean",
+			"default": true
+		},
+		"headerTitle": {
+			"type": "string",
+			"default": "Chat with persona"
+		}
+	}
 }

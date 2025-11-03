@@ -46,10 +46,25 @@
 			}
 
 			const personaId = parseInt( node.dataset.personaId || '0', 10 );
+			const showHeader = node.dataset.showHeader !== 'false';
+			const headerTitle =
+				node.dataset.headerTitle || 'Chat with persona';
 			const messages = [];
 
 			const wrapper = document.createElement( 'div' );
 			wrapper.className = 'ai-persona-chat__inner';
+
+			if ( showHeader ) {
+				const header = document.createElement( 'div' );
+				header.className = 'ai-persona-chat__header';
+
+				const title = document.createElement( 'h3' );
+				title.className = 'ai-persona-chat__title';
+				title.textContent = headerTitle;
+
+				header.appendChild( title );
+				wrapper.appendChild( header );
+			}
 
 			const list = document.createElement( 'div' );
 			list.className = 'ai-persona-chat__messages';

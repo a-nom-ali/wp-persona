@@ -28,3 +28,4 @@ The default Ollama provider runs locally and avoids transmitting content externa
 
 - Use this section to capture environment or workflow details that agents and contributors should keep in mind between updates.
 - Plugin currently installed on `http://campaign-forge.local` with the plugin directory symlinked to this repository folder.
+- Gutenberg chat block now exposes persona selection and header controls via the inspector; create at least one published persona before adding the block to avoid zero-state UX hiccups.

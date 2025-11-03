@@ -24,6 +24,21 @@
 	min-height: 260px;
 }
 
+.ai-persona-chat__header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding-bottom: 0.5rem;
+	border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.ai-persona-chat__title {
+	margin: 0;
+	font-size: 1.1rem;
+	font-weight: 600;
+	color: #0f172a;
+}
+
 .ai-persona-chat__messages {
 	flex: 1;
 	display: flex;

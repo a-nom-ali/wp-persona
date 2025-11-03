@@ -23,7 +23,9 @@ add_action( 'init', __NAMESPACE__ . '\\register_shortcode' );
 function render_chat_widget( $atts ) {
 	$atts = shortcode_atts(
 		array(
-			'id' => 0,
+			'id'           => 0,
+			'show_header'  => true,
+			'header_title' => __( 'Chat with persona', 'ai-persona' ),
 		),
 		$atts,
 		'ai_persona_chat'
@@ -36,9 +38,21 @@ function render_chat_widget( $atts ) {
 	 */
 	$atts = apply_filters( 'ai_persona_chat_attributes', $atts );
 
+	$attr_show_header = $atts['show_header'] ? 'true' : 'false';
+	$attr_header      = sanitize_text_field( $atts['header_title'] );
+
 	ob_start();
 	?>
-	<div class="ai-persona-chat" data-persona-id="<?php echo esc_attr( $atts['id'] ); ?>"></div>
+	<div
+		class="ai-persona-chat"
+		data-persona-id="<?php echo esc_attr( $atts['id'] ); ?>"
+		data-show-header="<?php echo esc_attr( $attr_show_header ); ?>"
+		data-header-title="<?php echo esc_attr( $attr_header ); ?>"
+	>
+		<noscript>
+			<?php esc_html_e( 'Enable JavaScript to use the AI Persona chat widget.', 'ai-persona' ); ?>
+		</noscript>
+	</div>
 	<?php
 
 	return ob_get_clean();
@@ -52,10 +66,14 @@ function render_chat_widget( $atts ) {
  */
 function render_chat_block( $attributes ) {
 	$persona_id = isset( $attributes['personaId'] ) ? absint( $attributes['personaId'] ) : 0;
+	$show_header = isset( $attributes['showHeader'] ) ? (bool) $attributes['showHeader'] : true;
+	$header_title = isset( $attributes['headerTitle'] ) ? (string) $attributes['headerTitle'] : __( 'Chat with persona', 'ai-persona' );
 
 	return render_chat_widget(
 		array(
-			'id' => $persona_id,
+			'id'           => $persona_id,
+			'show_header'  => $show_header,
+			'header_title' => $header_title,
 		)
 	);
 }
