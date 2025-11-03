@@ -1,4 +1,3 @@
-```markdown
 # AI Persona – WordPress Plugin for AI System Instructions and Agents
 
 **README.md** – The foundational document defining the plugin's architecture, features, and extensibility. This serves as the single source of truth for implementation, enabling CLI-based coding agents or developers to build the plugin systematically.
