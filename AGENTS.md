@@ -20,6 +20,8 @@ Run PHP unit tests from the plugin root: `composer install` (first run) then `co
 ## Commit & Pull Request Guidelines
 Mirror the existing history: imperative, sentence-cased summaries (`Add roadmap for planned enhancements`). Reference issues with `Refs #123` when relevant, and keep bodies wrapped at 72 characters. Pull requests must outline scope, testing performed, and migration steps. Include screenshots or GIFs for UI changes, highlight new hooks or filters, and call out security considerations (API key handling, nonce usage) so reviewers can assess risk quickly.
 
+Commit messages now follow the gitmoji pattern: begin each subject with an appropriate emoji (e.g., `✨`, `🐛`, `📝`), followed by a space and the imperative summary (`✨ Add streaming UI states`). Match the emoji to the change type per the [gitmoji.dev](https://gitmoji.dev/) specification.
+
 ## Security & Configuration Tips
 Store API keys via WordPress options secured with salts and surface filters for custom storage backends when possible. Sanitize and escape all persona fields before output, and guard REST endpoints with capability checks plus nonces. When integrating third-party APIs, document rate limits, timeout defaults, and retry behavior in `README.md` to keep deployers informed.
 The default Ollama provider runs locally and avoids transmitting content externally. When using OpenAI or Anthropic adapters, store API keys securely, review data residency constraints, and document any organisation-wide policies for remote inference.
