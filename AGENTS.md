@@ -19,3 +19,10 @@ Mirror the existing history: imperative, sentence-cased summaries (`Add roadmap 
 ## Security & Configuration Tips
 Store API keys via WordPress options secured with salts and surface filters for custom storage backends when possible. Sanitize and escape all persona fields before output, and guard REST endpoints with capability checks plus nonces. When integrating third-party APIs, document rate limits, timeout defaults, and retry behavior in `README.md` to keep deployers informed.
 The default Ollama provider runs locally and avoids transmitting content externally; if you switch to a remote provider, review data residency and authentication impacts and update this section accordingly.
+
+---
+
+**Notes**
+
+- Use this section to capture environment or workflow details that agents and contributors should keep in mind between updates.
+- Plugin currently installed on `http://campaign-forge.local` with the plugin directory symlinked to this repository folder.
