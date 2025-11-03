@@ -8,5 +8,11 @@
 		"psr-4": {
 			"Ai_Persona\\": "includes/"
 		}
+	},
+	"require-dev": {
+		"phpunit/phpunit": "^10.5"
+	},
+	"scripts": {
+		"test": "phpunit -c phpunit.xml.dist"
 	}
 }

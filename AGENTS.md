@@ -13,6 +13,8 @@ Follow WordPress PHPCS rulesets (`WordPress-Core`, `WordPress-Docs`) with 4-spac
 ## Testing Guidelines
 Target PHPUnit-based integration tests via the WordPress testing suite stored under `tests/phpunit/` (create the directory when you add your first test). Name test classes after the component under test (`Test_Prompt_Builder`). For frontend widgets, add Jest or Playwright coverage under `tests/js/` as the UI stabilizes. Ensure new behavior includes happy-path and failure cases, and document manual QA steps in the pull request when automated coverage is pending.
 
+Run PHP unit tests from the plugin root: `composer install` (first run) then `composer test`. The bootstrap stubs core WordPress helpers so provider logic can be validated without a full WP stack. For JavaScript smoke coverage, use Node ≥18: `node --test tests/js/chat-placeholder.test.mjs`.
+
 ## Commit & Pull Request Guidelines
 Mirror the existing history: imperative, sentence-cased summaries (`Add roadmap for planned enhancements`). Reference issues with `Refs #123` when relevant, and keep bodies wrapped at 72 characters. Pull requests must outline scope, testing performed, and migration steps. Include screenshots or GIFs for UI changes, highlight new hooks or filters, and call out security considerations (API key handling, nonce usage) so reviewers can assess risk quickly.
 
