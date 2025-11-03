@@ -230,3 +230,12 @@ curl "https://example.com/wp-json/ai-persona/v1/persona/123?_wpnonce=<nonce>"
 The response contains the normalized persona fields and the compiled prompt consumers can persist or ship to third-party systems.
 
 Within wp-admin, an **Export Persona JSON** button is available in the persona editor once the post is saved.
+
+### Persona Import
+
+To import, either:
+
+- Upload a previously exported JSON file in the persona editor (beneath the builder). The JSON will populate the builder fields when you update the post.
+- Or, POST the same JSON payload to a custom integration and manually persist it via the WordPress admin UI.
+
+The expected JSON structure mirrors the export response and accepts `role`, `guidelines`, `constraints`, `variables`, and `examples` fields.

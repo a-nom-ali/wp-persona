@@ -107,6 +107,7 @@ function render_metabox( $post ) {
 		<p><?php esc_html_e( 'Loading persona builder…', 'ai-persona' ); ?></p>
 	</div>
 	<input type="hidden" id="ai-persona-payload" name="ai_persona_payload" value="<?php echo esc_attr( $encoded_state ); ?>" />
+	<?php wp_nonce_field( 'ai_persona_import', 'ai_persona_import_nonce' ); ?>
 	<noscript>
 		<p><?php esc_html_e( 'JavaScript is disabled. Use the fallback fields below.', 'ai-persona' ); ?></p>
 		<p>
@@ -147,6 +148,14 @@ function render_metabox( $post ) {
 			</a>
 		</p>
 	<?php endif; ?>
+
+	<div class="ai-persona-import">
+		<label for="ai-persona-import-file"><strong><?php esc_html_e( 'Import Persona JSON', 'ai-persona' ); ?></strong></label>
+		<input type="file" id="ai-persona-import-file" name="ai_persona_import_file" accept="application/json" />
+		<p class="description">
+			<?php esc_html_e( 'Uploading a persona export will overwrite the fields above before saving.', 'ai-persona' ); ?>
+		</p>
+	</div>
 	<?php
 }
 
@@ -170,6 +179,16 @@ function save_metabox( $post_id ) {
 
 	$payload_raw = isset( $_POST['ai_persona_payload'] ) ? wp_unslash( $_POST['ai_persona_payload'] ) : '';
 	$payload     = json_decode( $payload_raw, true );
+
+	$import_meta = array();
+
+    if ( ! is_array( $payload ) && ! empty( $_FILES['ai_persona_import_file'] ) ) {
+        $import_meta = ai_persona_handle_import_upload( $post_id );
+    }
+
+	if ( ! is_array( $payload ) && ! empty( $import_meta ) ) {
+		$payload = $import_meta;
+	}
 
 	if ( ! is_array( $payload ) ) {
 		$payload = array();
@@ -287,4 +306,56 @@ function ai_persona_update_meta( $post_id, $meta_key, $value ) {
 	}
 
 	update_post_meta( $post_id, $meta_key, $value );
+}
+/**
+ * Process persona import upload.
+ *
+ * @param int $post_id Post ID.
+ * @return array
+ */
+function ai_persona_handle_import_upload( $post_id ) {
+    if ( empty( $_FILES['ai_persona_import_file']['tmp_name'] ) ) {
+        return array();
+    }
+
+    if ( ! isset( $_POST['ai_persona_import_nonce'] ) || ! wp_verify_nonce( wp_unslash( $_POST['ai_persona_import_nonce'] ), 'ai_persona_import' ) ) {
+        return array();
+	}
+
+    $file = $_FILES['ai_persona_import_file'];
+
+    if ( ! empty( $file['error'] ) ) {
+        return array();
+    }
+
+    $filetype = wp_check_filetype( $file['name'] );
+
+    if ( empty( $filetype['ext'] ) || 'json' !== strtolower( $filetype['ext'] ) ) {
+        return array();
+    }
+
+	$contents = file_get_contents( $file['tmp_name'] ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+	if ( false === $contents ) {
+		return array();
+	}
+
+	$decoded = json_decode( $contents, true );
+
+	if ( ! is_array( $decoded ) ) {
+		return array();
+	}
+
+	$role        = isset( $decoded['role'] ) ? (string) $decoded['role'] : '';
+	$guidelines  = isset( $decoded['guidelines'] ) ? $decoded['guidelines'] : array();
+	$constraints = isset( $decoded['constraints'] ) ? $decoded['constraints'] : array();
+	$examples    = isset( $decoded['examples'] ) ? $decoded['examples'] : array();
+	$variables   = isset( $decoded['variables'] ) ? $decoded['variables'] : array();
+
+	return array(
+		'role'        => $role,
+		'guidelines'  => $guidelines,
+		'constraints' => $constraints,
+		'examples'    => $examples,
+		'variables'   => $variables,
+	);
 }

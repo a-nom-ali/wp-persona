@@ -53,3 +53,11 @@
 	font-style: italic;
 	opacity: 0.7;
 }
+
+.ai-persona-import {
+	margin-top: 1.5rem;
+}
+
+.ai-persona-import input[type="file"] {
+	margin-top: 0.5rem;
+}

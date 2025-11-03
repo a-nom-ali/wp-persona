@@ -13,6 +13,7 @@
 - [x] Add autosave-aware React admin UI for prompt sections.
 - [x] Implement validation and preview within wp-admin.
 - [x] Document provider resolution filters so third parties can register clients.
+- [x] Provide import/export tooling for personas (JSON download + upload).
 
 ## 0.3.0 – Chat Experience
 - [x] Connect REST endpoint to provider abstraction with SSE streaming pipeline.

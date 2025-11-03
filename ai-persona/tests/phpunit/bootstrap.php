@@ -306,6 +306,22 @@ if ( ! function_exists( 'status_header' ) ) {
     function status_header( $code ) {} // phpcs:ignore
 }
 
+if ( ! function_exists( 'wp_check_filetype' ) ) {
+    function wp_check_filetype( $filename, $mimes = null ) { // phpcs:ignore
+        $ext  = strtolower( pathinfo( $filename, PATHINFO_EXTENSION ) );
+        $type = 'application/octet-stream';
+
+        if ( 'json' === $ext ) {
+            $type = 'application/json';
+        }
+
+        return array(
+            'ext'  => $ext,
+            'type' => $type,
+        );
+    }
+}
+
 // -----------------------------------------------------------------------------
 // HTTP stub for controlling wp_remote_post responses.
 // -----------------------------------------------------------------------------

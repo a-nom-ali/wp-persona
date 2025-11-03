@@ -11,6 +11,7 @@
 			<file>tests/phpunit/AnthropicProviderTest.php</file>
 			<file>tests/phpunit/DesignTokensTest.php</file>
 			<file>tests/phpunit/PersonaHelpersTest.php</file>
+			<file>tests/phpunit/AdminImportTest.php</file>
 		</testsuite>
 	</testsuites>
 </phpunit>
