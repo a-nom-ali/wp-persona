@@ -296,3 +296,17 @@ add_action( 'ai_persona_response_after_generate', function ( $response, $prompt,
 ```
 
 These examples provide a starting point for n8n flows, Zapier-style automations, or custom webhook integrations without modifying core plugin files.
+
+## Authentication Guidance
+
+- **Logged-in requests**: All REST endpoints accept standard WordPress cookie + nonce auth. Use `wp_create_nonce( 'wp_rest' )` on the server side or leverage `wp_localize_script` (`AiPersonaSettings.nonce`) on the frontend.
+- **Application Passwords**: For server-to-server automations, rely on WordPress application passwords. Example curl request:
+
+```bash
+curl -u "youruser:application-password" \
+  -H "Content-Type: application/json" \
+  -X POST https://example.com/wp-json/ai-persona/v1/persona \
+  -d '{"title":"Automated Persona","persona":{"role":"You are a helpful agent."}}'
+```
+
+Ensure HTTPS is enforced before enabling application passwords to avoid leaking credentials over the network.
