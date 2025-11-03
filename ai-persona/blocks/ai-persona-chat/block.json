@@ -1,0 +1,11 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 2,
+	"name": "ai-persona/chat",
+	"title": "AI Persona Chat",
+	"category": "widgets",
+	"icon": "format-chat",
+	"textdomain": "ai-persona",
+	"editorScript": "ai-persona-block-editor",
+	"render": "ai_persona_render_chat_block"
+}

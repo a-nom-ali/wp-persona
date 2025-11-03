@@ -1,0 +1,12 @@
+{
+	"name": "ai-persona/plugin",
+	"type": "wordpress-plugin",
+	"description": "Structured AI persona management for WordPress.",
+	"license": "GPL-2.0-or-later",
+	"require": {},
+	"autoload": {
+		"psr-4": {
+			"Ai_Persona\\": "includes/"
+		}
+	}
+}

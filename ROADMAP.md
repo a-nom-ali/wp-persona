@@ -1,22 +1,34 @@
-# ROADMAP.md – Planned Enhancements
+# ROADMAP.md — Planned Enhancements
 
-## Version 1.0 (MVP)
-- [ ] Custom post type for personas.
-- [ ] Structured prompt metaboxes.
-- [ ] Chatbot block with streaming.
-- [ ] REST API for external queries.
-- [ ] Core hooks/filters for extensibility.
+## 0.1.0 – Foundation
+- [x] Establish plugin bootstrap, namespaces, and directory layout.
+- [x] Register `ai_persona` custom post type with placeholder supports.
+- [x] Scaffold admin metaboxes and settings screen with nonce and capability checks.
+- [x] Provide REST endpoint stub and shortcode/block rendering hooks.
+- [ ] Wire WordPress test suite bootstrap and sample tests for metabox saves.
 
-## Version 1.5
-- [ ] Integration with other AI providers (e.g., filter for Anthropic API).
-- [ ] Persona templates/library.
-- [ ] Advanced variables (e.g., pull from WP queries).
+## 0.2.0 – Persona Authoring
+- [ ] Flesh out structured prompt storage (role/guidelines/constraints/examples/variables).
+- [ ] Add autosave-aware React admin UI for prompt sections.
+- [ ] Implement validation and preview within wp-admin.
 
-## Version 2.0
-- [ ] Multi-persona switching in chat.
-- [ ] Webhook support for n8n-like integrations.
-- [ ] Analytics on persona usage.
+## 0.3.0 – Chat Experience
+- [ ] Connect REST endpoint to API client with streaming support.
+- [ ] Build frontend chat widget (state management, retry logic, Persona switching).
+- [ ] Provide Gutenberg block controls for persona selection and display options.
 
-## Version 3.0
-- [ ] AI-assisted prompt refinement.
-- [ ] Community marketplace for shared personas.
+## 0.4.0 – Integrations & Extensibility
+- [ ] Abstract provider layer (OpenAI default, filterable for Anthropic/others).
+- [ ] Add export/import flows (JSON + WordPress REST).
+- [ ] Document filters/actions; ship reference implementations for n8n and webhooks.
+
+## 1.0.0 – Release Hardening
+- [ ] Implement analytics + logging opt-in.
+- [ ] Finalize localization files and developer docs.
+- [ ] Achieve test coverage targets across PHP/JS; add Playwright smoke tests.
+- [ ] Publish to WordPress.org with deployment workflow.
+
+## Backlog / Nice to Have
+- [ ] AI-assisted prompt refinement wizard.
+- [ ] Persona template marketplace or syncing mechanism.
+- [ ] Fine-grained capability mapping for persona creation vs usage.

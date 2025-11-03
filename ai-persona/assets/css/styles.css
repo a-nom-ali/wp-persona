@@ -1,0 +1,10 @@
+.ai-persona-chat {
+	border: 1px solid #ddd;
+	padding: 1.5rem;
+	background: #fff;
+}
+
+.ai-persona-chat-placeholder {
+	border: 1px dashed #999;
+	padding: 1rem;
+}
