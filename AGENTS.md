@@ -42,3 +42,4 @@ The default Ollama provider runs locally and avoids transmitting content externa
 - Use `DELETE /wp-json/ai-persona/v1/persona/{id}` to remove personas and `POST /persona/{id}/duplicate` to clone them—mirror these flows in automations instead of scripting raw database writes.
 - For n8n/webhooks: leverage `ai_persona_prompt_before_render` to inject runtime context and `ai_persona_response_after_generate` to push responses outbound; maintain HMAC/nonce validation when exposing the REST endpoints publicly.
 - Default REST requests rely on WordPress cookies + `wp_rest` nonces; for backend automations, document the use of Application Passwords and enforce HTTPS to keep credentials confidential.
+- Local WordPress credentials use `admin`/`admin`; rotate these before deploying outside of development.
