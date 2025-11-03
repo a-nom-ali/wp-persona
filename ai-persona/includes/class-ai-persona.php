@@ -66,6 +66,8 @@ final class Plugin {
 		require_once AI_PERSONA_PLUGIN_DIR . 'includes/providers/interface-provider.php';
 		require_once AI_PERSONA_PLUGIN_DIR . 'includes/providers/class-null-provider.php';
 		require_once AI_PERSONA_PLUGIN_DIR . 'includes/providers/class-ollama-provider.php';
+		require_once AI_PERSONA_PLUGIN_DIR . 'includes/providers/class-openai-provider.php';
+		require_once AI_PERSONA_PLUGIN_DIR . 'includes/providers/class-anthropic-provider.php';
 	}
 
 	/**
@@ -125,10 +127,31 @@ final class Plugin {
 			return $provider;
 		}
 
-		$base_url = get_option( 'ai_persona_provider_base_url', 'http://localhost:11434' );
-		$model    = get_option( 'ai_persona_provider_model', 'minimax-m2:cloud' );
+		$provider = get_option( 'ai_persona_provider', 'ollama' );
+		$model    = get_option( 'ai_persona_provider_model', '' );
+		$base_url = get_option( 'ai_persona_provider_base_url', '' );
+		$api_key  = get_option( 'ai_persona_api_key', '' );
 
-		return new \Ai_Persona\Providers\Ollama_Provider( $base_url, $model );
+		switch ( $provider ) {
+			case 'openai':
+				$model    = $model ?: 'gpt-4o-mini';
+				$base_url = $base_url ?: 'https://api.openai.com/v1';
+
+				return new \Ai_Persona\Providers\OpenAI_Provider( $api_key, $model, $base_url );
+
+			case 'anthropic':
+				$model    = $model ?: 'claude-3-haiku-20240307';
+				$base_url = $base_url ?: 'https://api.anthropic.com/v1';
+
+				return new \Ai_Persona\Providers\Anthropic_Provider( $api_key, $model, $base_url );
+
+			case 'ollama':
+			default:
+				$model    = $model ?: 'minimax-m2:cloud';
+				$base_url = $base_url ?: 'http://localhost:11434';
+
+				return new \Ai_Persona\Providers\Ollama_Provider( $base_url, $model );
+		}
 	}
 
 	/**

@@ -19,6 +19,8 @@ if ( ! defined( 'AI_PERSONA_VERSION' ) ) {
 require_once AI_PERSONA_PLUGIN_DIR . 'includes/providers/interface-provider.php';
 require_once AI_PERSONA_PLUGIN_DIR . 'includes/providers/class-null-provider.php';
 require_once AI_PERSONA_PLUGIN_DIR . 'includes/providers/class-ollama-provider.php';
+require_once AI_PERSONA_PLUGIN_DIR . 'includes/providers/class-openai-provider.php';
+require_once AI_PERSONA_PLUGIN_DIR . 'includes/providers/class-anthropic-provider.php';
 
 // -----------------------------------------------------------------------------
 // Core utility shims.

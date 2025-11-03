@@ -13,6 +13,7 @@ class PluginProviderResolutionTest extends TestCase {
     protected function setUp(): void {
         ai_persona_tests_reset_filters();
         ai_persona_tests_reset_options();
+        ai_persona_tests_set_option( 'ai_persona_provider', 'ollama' );
     }
 
     public function test_existing_provider_is_preserved() {
@@ -53,5 +54,51 @@ class PluginProviderResolutionTest extends TestCase {
 
         $this->assertSame( 'http://example.test:8080/subdir', $base_url->getValue( $resolved ) );
         $this->assertSame( 'custom-model', $model->getValue( $resolved ) );
+    }
+
+    public function test_openai_provider_is_returned_when_selected() {
+        ai_persona_tests_set_option( 'ai_persona_provider', 'openai' );
+        ai_persona_tests_set_option( 'ai_persona_provider_model', '' );
+        ai_persona_tests_set_option( 'ai_persona_provider_base_url', '' );
+        ai_persona_tests_set_option( 'ai_persona_api_key', 'test-key' );
+
+        $plugin   = Plugin::instance();
+        $resolved = $plugin->resolve_provider( null );
+
+        $this->assertInstanceOf( \Ai_Persona\Providers\OpenAI_Provider::class, $resolved );
+
+        $reflected = new ReflectionClass( $resolved );
+
+        $model = $reflected->getProperty( 'model' );
+        $model->setAccessible( true );
+
+        $base = $reflected->getProperty( 'base_url' );
+        $base->setAccessible( true );
+
+        $this->assertSame( 'gpt-4o-mini', $model->getValue( $resolved ) );
+        $this->assertSame( 'https://api.openai.com/v1', $base->getValue( $resolved ) );
+    }
+
+    public function test_anthropic_provider_is_returned_when_selected() {
+        ai_persona_tests_set_option( 'ai_persona_provider', 'anthropic' );
+        ai_persona_tests_set_option( 'ai_persona_provider_model', '' );
+        ai_persona_tests_set_option( 'ai_persona_provider_base_url', '' );
+        ai_persona_tests_set_option( 'ai_persona_api_key', 'anth-key' );
+
+        $plugin   = Plugin::instance();
+        $resolved = $plugin->resolve_provider( null );
+
+        $this->assertInstanceOf( \Ai_Persona\Providers\Anthropic_Provider::class, $resolved );
+
+        $reflected = new ReflectionClass( $resolved );
+
+        $model = $reflected->getProperty( 'model' );
+        $model->setAccessible( true );
+
+        $base = $reflected->getProperty( 'base_url' );
+        $base->setAccessible( true );
+
+        $this->assertSame( 'claude-3-haiku-20240307', $model->getValue( $resolved ) );
+        $this->assertSame( 'https://api.anthropic.com/v1', $base->getValue( $resolved ) );
     }
 }

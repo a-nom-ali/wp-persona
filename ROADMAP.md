@@ -22,7 +22,7 @@
 - [ ] Ship design token registry and CSS variable bridge for block themes.
 
 ## 0.4.0 – Integrations & Extensibility
-- [ ] Ship optional remote provider adapters (OpenAI, Anthropic) reusing provider abstraction.
+- [x] Ship optional remote provider adapters (OpenAI, Anthropic) reusing provider abstraction.
 - [ ] Add export/import flows (JSON + WordPress REST).
 - [ ] Document filters/actions; ship reference implementations for n8n and webhooks.
 - [ ] Implement WordPress-native authentication flows (nonces, application passwords) for external consumers.

@@ -7,6 +7,8 @@
 			<file>tests/phpunit/PluginProviderResolutionTest.php</file>
 			<file>tests/phpunit/ApiPermissionsTest.php</file>
 			<file>tests/phpunit/ApiStreamTest.php</file>
+			<file>tests/phpunit/OpenAIProviderTest.php</file>
+			<file>tests/phpunit/AnthropicProviderTest.php</file>
 		</testsuite>
 	</testsuites>
 </phpunit>
