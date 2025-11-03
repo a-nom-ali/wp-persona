@@ -15,8 +15,8 @@
 - [ ] Document provider resolution filters so third parties can register clients.
 
 ## 0.3.0 – Chat Experience
-- [ ] Connect REST endpoint to provider abstraction with SSE streaming pipeline.
-- [ ] Build frontend chat widget (state management, SSE event piping, persona switching).
+- [x] Connect REST endpoint to provider abstraction with SSE streaming pipeline.
+- [x] Build frontend chat widget (state management, SSE event piping, persona switching).
 - [ ] Provide Gutenberg block controls for persona selection and display options.
 - [ ] Ship design token registry and CSS variable bridge for block themes.
 

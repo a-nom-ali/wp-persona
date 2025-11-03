@@ -20,4 +20,24 @@ class Null_Provider implements Provider_Interface {
 			'provider' => 'null',
 		);
 	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function stream( $prompt, array $context = array(), ?callable $emit = null ) {
+		if ( is_callable( $emit ) ) {
+			$emit(
+				array(
+					'type' => 'token',
+					'data' => '',
+				)
+			);
+
+			$emit(
+				array(
+					'type' => 'done',
+				)
+			);
+		}
+	}
 }

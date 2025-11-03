@@ -161,9 +161,18 @@ final class Plugin {
 		wp_enqueue_script(
 			'ai-persona-frontend',
 			$base_url . 'assets/js/chat.js',
-			array( 'wp-element' ),
+			array(),
 			AI_PERSONA_VERSION,
 			true
+		);
+
+		wp_localize_script(
+			'ai-persona-frontend',
+			'AiPersonaSettings',
+			array(
+				'restUrl' => esc_url_raw( trailingslashit( rest_url( 'ai-persona/v1' ) ) ),
+				'nonce'   => wp_create_nonce( 'wp_rest' ),
+			)
 		);
 	}
 }

@@ -88,4 +88,114 @@ class Ollama_Provider implements Provider_Interface {
 			'raw'      => $data,
 		);
 	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function stream( $prompt, array $context = array(), ?callable $emit = null ) {
+		if ( ! is_callable( $emit ) ) {
+			return;
+		}
+
+		if ( ! function_exists( 'curl_init' ) ) {
+			$emit(
+				array(
+					'type' => 'error',
+					'data' => __( 'cURL is required for streaming responses.', 'ai-persona' ),
+				)
+			);
+
+			$emit(
+				array(
+					'type' => 'done',
+				)
+			);
+
+			return;
+		}
+
+		$payload = array(
+			'model'  => $this->model,
+			'prompt' => $prompt,
+			'stream' => true,
+		);
+
+		$ch = curl_init( "{$this->base_url}/api/generate" );
+		$buffer = '';
+
+		curl_setopt_array(
+			$ch,
+			array(
+				CURLOPT_POST           => true,
+				CURLOPT_HTTPHEADER     => array( 'Content-Type: application/json' ),
+				CURLOPT_POSTFIELDS     => wp_json_encode( $payload ),
+				CURLOPT_RETURNTRANSFER => false,
+				CURLOPT_WRITEFUNCTION  => function ( $handle, $chunk ) use ( &$buffer, $emit ) {
+					$buffer .= $chunk;
+
+					while ( false !== ( $pos = strpos( $buffer, "\n" ) ) ) {
+						$line = trim( substr( $buffer, 0, $pos ) );
+						$buffer = substr( $buffer, $pos + 1 );
+
+						if ( '' === $line ) {
+							continue;
+						}
+
+						$data = json_decode( $line, true );
+
+						if ( ! is_array( $data ) ) {
+							continue;
+						}
+
+						if ( isset( $data['error'] ) ) {
+							$emit(
+								array(
+									'type' => 'error',
+									'data' => (string) $data['error'],
+									'raw'  => $data,
+								)
+							);
+							continue;
+						}
+
+						if ( isset( $data['response'] ) ) {
+							$emit(
+								array(
+									'type' => 'token',
+									'data' => (string) $data['response'],
+									'raw'  => $data,
+								)
+							);
+						}
+
+						if ( ! empty( $data['done'] ) ) {
+							$emit(
+								array(
+									'type' => 'done',
+									'raw'  => $data,
+								)
+							);
+						}
+					}
+
+					return strlen( $chunk );
+				},
+				CURLOPT_TIMEOUT        => 0,
+				CURLOPT_CONNECTTIMEOUT => 5,
+			)
+		);
+
+		curl_exec( $ch );
+
+		if ( 0 !== curl_errno( $ch ) ) {
+			$emit(
+				array(
+					'type' => 'error',
+					'data' => curl_error( $ch ),
+				)
+			);
+		}
+
+		curl_close( $ch );
+	}
 }

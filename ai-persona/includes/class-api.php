@@ -74,4 +74,24 @@ class API {
 
 		return $response;
 	}
+
+	/**
+	 * Stream persona prompt to provider.
+	 *
+	 * @param string   $prompt Persona prompt.
+	 * @param array    $context Request context data.
+	 * @param callable $emit Emit function for streaming events.
+	 * @return void
+	 */
+	public function stream( $prompt, array $context = array(), callable $emit = null ) {
+		/**
+		 * Filter the persona prompt before dispatch when streaming.
+		 *
+		 * @param string $prompt  Prepared prompt.
+		 * @param array  $context Context data.
+		 */
+		$prompt = apply_filters( 'ai_persona_prompt_before_render', $prompt, $context );
+
+		$this->provider->stream( $prompt, $context, $emit );
+	}
 }

@@ -3,6 +3,7 @@
 	<testsuites>
 		<testsuite name="AI Persona Plugin">
 			<file>tests/phpunit/OllamaProviderTest.php</file>
+			<file>tests/phpunit/NullProviderTest.php</file>
 		</testsuite>
 	</testsuites>
 </phpunit>
