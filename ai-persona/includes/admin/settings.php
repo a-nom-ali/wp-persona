@@ -33,6 +33,26 @@ function register_settings() {
 		)
 	);
 
+	register_setting(
+		'ai_persona',
+		'ai_persona_provider_base_url',
+		array(
+			'type'              => 'string',
+			'sanitize_callback' => __NAMESPACE__ . '\\sanitize_url_option',
+			'default'           => 'http://localhost:11434',
+		)
+	);
+
+	register_setting(
+		'ai_persona',
+		'ai_persona_provider_model',
+		array(
+			'type'              => 'string',
+			'sanitize_callback' => 'sanitize_text_field',
+			'default'           => 'minimax-m2:cloud',
+		)
+	);
+
 	add_settings_section(
 		'ai_persona_general',
 		__( 'General', 'ai-persona' ),
@@ -44,6 +64,22 @@ function register_settings() {
 		'ai_persona_api_key',
 		__( 'API Key', 'ai-persona' ),
 		__NAMESPACE__ . '\\render_api_key_field',
+		'ai-persona-settings',
+		'ai_persona_general'
+	);
+
+	add_settings_field(
+		'ai_persona_provider_base_url',
+		__( 'Provider Base URL', 'ai-persona' ),
+		__NAMESPACE__ . '\\render_provider_base_url_field',
+		'ai-persona-settings',
+		'ai_persona_general'
+	);
+
+	add_settings_field(
+		'ai_persona_provider_model',
+		__( 'Model Identifier', 'ai-persona' ),
+		__NAMESPACE__ . '\\render_provider_model_field',
 		'ai-persona-settings',
 		'ai_persona_general'
 	);
@@ -76,7 +112,49 @@ function render_api_key_field() {
 	?>
 	<input type="text" name="ai_persona_api_key" value="<?php echo esc_attr( $value ); ?>" class="regular-text" autocomplete="off" />
 	<p class="description">
-		<?php esc_html_e( 'Store your AI provider API key. Consider overriding the storage mechanism via filters for custom handling.', 'ai-persona' ); ?>
+		<?php esc_html_e( 'Store your AI provider API key. The local Ollama provider does not require a key, but this field remains for future remote providers.', 'ai-persona' ); ?>
 	</p>
 	<?php
+}
+
+/**
+ * Render provider base URL field.
+ */
+function render_provider_base_url_field() {
+	$value = get_option( 'ai_persona_provider_base_url', 'http://localhost:11434' );
+	?>
+	<input type="url" name="ai_persona_provider_base_url" value="<?php echo esc_attr( $value ); ?>" class="regular-text code" />
+	<p class="description">
+		<?php esc_html_e( 'URL where Ollama responds (default localhost). Must be accessible from your WordPress server.', 'ai-persona' ); ?>
+	</p>
+	<?php
+}
+
+/**
+ * Render provider model field.
+ */
+function render_provider_model_field() {
+	$value = get_option( 'ai_persona_provider_model', 'minimax-m2:cloud' );
+	?>
+	<input type="text" name="ai_persona_provider_model" value="<?php echo esc_attr( $value ); ?>" class="regular-text" />
+	<p class="description">
+		<?php esc_html_e( 'Model name as registered within Ollama. Default minimax-m2:cloud.', 'ai-persona' ); ?>
+	</p>
+	<?php
+}
+
+/**
+ * Sanitize URL option values.
+ *
+ * @param string $value Raw URL.
+ * @return string
+ */
+function sanitize_url_option( $value ) {
+	$value = trim( $value );
+
+	if ( empty( $value ) ) {
+		return 'http://localhost:11434';
+	}
+
+	return esc_url_raw( $value );
 }

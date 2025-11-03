@@ -65,6 +65,7 @@ final class Plugin {
 		require_once AI_PERSONA_PLUGIN_DIR . 'includes/frontend/api-endpoints.php';
 		require_once AI_PERSONA_PLUGIN_DIR . 'includes/providers/interface-provider.php';
 		require_once AI_PERSONA_PLUGIN_DIR . 'includes/providers/class-null-provider.php';
+		require_once AI_PERSONA_PLUGIN_DIR . 'includes/providers/class-ollama-provider.php';
 	}
 
 	/**
@@ -75,6 +76,7 @@ final class Plugin {
 		add_action( 'init', array( $this, 'register_block_types' ) );
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_editor_assets' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_frontend_assets' ) );
+		add_filter( 'ai_persona_resolve_provider', array( $this, 'resolve_provider' ) );
 	}
 
 	/**
@@ -110,6 +112,23 @@ final class Plugin {
 				'render_callback' => 'Ai_Persona\\Frontend\\render_chat_block',
 			)
 		);
+	}
+
+	/**
+	 * Provide the default provider instance.
+	 *
+	 * @param \Ai_Persona\Providers\Provider_Interface|null $provider Existing provider instance.
+	 * @return \Ai_Persona\Providers\Provider_Interface
+	 */
+	public function resolve_provider( $provider ) {
+		if ( $provider instanceof \Ai_Persona\Providers\Provider_Interface ) {
+			return $provider;
+		}
+
+		$base_url = get_option( 'ai_persona_provider_base_url', 'http://localhost:11434' );
+		$model    = get_option( 'ai_persona_provider_model', 'minimax-m2:cloud' );
+
+		return new \Ai_Persona\Providers\Ollama_Provider( $base_url, $model );
 	}
 
 	/**

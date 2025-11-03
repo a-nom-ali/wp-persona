@@ -5,6 +5,7 @@
 - [x] Register `ai_persona` custom post type with placeholder supports.
 - [x] Scaffold admin metaboxes and settings screen with nonce and capability checks.
 - [x] Provide REST endpoint stub and shortcode/block rendering hooks.
+- [x] Register provider abstraction with default Ollama (minimax-m2:cloud) implementation.
 - [ ] Wire WordPress test suite bootstrap and sample tests for metabox saves.
 
 ## 0.2.0 – Persona Authoring
@@ -20,7 +21,7 @@
 - [ ] Ship design token registry and CSS variable bridge for block themes.
 
 ## 0.4.0 – Integrations & Extensibility
-- [ ] Abstract provider layer (OpenAI default, filterable for Anthropic/others).
+- [ ] Ship optional remote provider adapters (OpenAI, Anthropic) reusing provider abstraction.
 - [ ] Add export/import flows (JSON + WordPress REST).
 - [ ] Document filters/actions; ship reference implementations for n8n and webhooks.
 - [ ] Implement WordPress-native authentication flows (nonces, application passwords) for external consumers.
