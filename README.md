@@ -171,35 +171,6 @@ Dynamic context: User is {{user_name}}, on page {{page_title}}.
 
 ---
 
-## ROADMAP.md
-
-```markdown
-# ROADMAP.md – Planned Enhancements
-
-## Version 1.0 (MVP)
-- [ ] Custom post type for personas.
-- [ ] Structured prompt metaboxes.
-- [ ] Chatbot block with streaming.
-- [ ] REST API for external queries.
-- [ ] Core hooks/filters for extensibility.
-
-## Version 1.5
-- [ ] Integration with other AI providers (e.g., filter for Anthropic API).
-- [ ] Persona templates/library.
-- [ ] Advanced variables (e.g., pull from WP queries).
-
-## Version 2.0
-- [ ] Multi-persona switching in chat.
-- [ ] Webhook support for n8n-like integrations.
-- [ ] Analytics on persona usage.
-
-## Version 3.0
-- [ ] AI-assisted prompt refinement.
-- [ ] Community marketplace for shared personas.
-```
-
----
-
 ## Contributing
 
 - Fork the repository.
@@ -211,7 +182,6 @@ Dynamic context: User is {{user_name}}, on page {{page_title}}.
 ---
 
 **Built for scalability and integration. Implement via CLI agents by parsing this structure.**
-```
 
 ---
 
@@ -221,5 +191,3 @@ Dynamic context: User is {{user_name}}, on page {{page_title}}.
 2. **Add Custom Post Type**: Implement `ai_persona` CPT with metaboxes as described.
 3. **Incorporate Hooks**: Ensure every key process (prompt build, API call, response) has actions/filters.
 4. **Test Extensibility**: Verify a developer can override the AI model via filter.
-
-If you specify a file (e.g., `ai-persona.php`), I'll generate its code based on this brief. Or say "generate skeleton" for all core files.
