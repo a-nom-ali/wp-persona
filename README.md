@@ -239,3 +239,24 @@ To import, either:
 - Or, POST the same JSON payload to a custom integration and manually persist it via the WordPress admin UI.
 
 The expected JSON structure mirrors the export response and accepts `role`, `guidelines`, `constraints`, `variables`, and `examples` fields.
+
+### Persona Create & Update (REST)
+
+Create personas programmatically by POSTing to `/wp-json/ai-persona/v1/persona`:
+
+```bash
+curl -X POST https://example.com/wp-json/ai-persona/v1/persona \
+  -H "Content-Type: application/json" \
+  -H "X-WP-Nonce: <nonce>" \
+  -d '{
+    "title": "Creative Coach",
+    "status": "draft",
+    "persona": {
+      "role": "You are a creative writing coach.",
+      "guidelines": ["Offer constructive feedback"],
+      "constraints": ["Avoid spoilers"]
+    }
+  }'
+```
+
+Update an existing persona via `POST /wp-json/ai-persona/v1/persona/{id}` with the fields you want to replace. Both endpoints return the sanitized persona payload and the compiled prompt so that automation workflows can store or distribute the same data structure used in wp-admin.

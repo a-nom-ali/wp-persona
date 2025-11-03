@@ -5,6 +5,8 @@ namespace Ai_Persona\Frontend;
 use Ai_Persona\API;
 use function Ai_Persona\compile_persona_prompt;
 use function Ai_Persona\get_persona_data;
+use function Ai_Persona\sanitize_persona_payload;
+use function Ai_Persona\save_persona_data;
 use WP_REST_Request;
 use WP_REST_Response;
 
@@ -42,6 +44,26 @@ function register_routes() {
 		array(
 			'methods'             => 'GET',
 			'callback'            => __NAMESPACE__ . '\\handle_persona_export',
+			'permission_callback' => __NAMESPACE__ . '\\permissions_check',
+		)
+	);
+
+	register_rest_route(
+		'ai-persona/v1',
+		'/persona',
+		array(
+			'methods'             => 'POST',
+			'callback'            => __NAMESPACE__ . '\\handle_persona_create',
+			'permission_callback' => __NAMESPACE__ . '\\permissions_check',
+		)
+	);
+
+	register_rest_route(
+		'ai-persona/v1',
+		'/persona/(?P<id>\\d+)',
+		array(
+			'methods'             => 'POST',
+			'callback'            => __NAMESPACE__ . '\\handle_persona_update',
 			'permission_callback' => __NAMESPACE__ . '\\permissions_check',
 		)
 	);
@@ -223,6 +245,171 @@ function handle_persona_export( WP_REST_Request $request ) {
 	);
 
 	return new WP_REST_Response( $payload, 200 );
+}
+
+/**
+ * Create a persona via REST.
+ *
+ * @param WP_REST_Request $request Request object.
+ * @return WP_REST_Response
+ */
+function handle_persona_create( WP_REST_Request $request ) {
+	$title = (string) $request->get_param( 'title' );
+
+	if ( '' === trim( $title ) ) {
+		return new WP_REST_Response(
+			array( 'error' => __( 'Persona title is required.', 'ai-persona' ) ),
+			400
+		);
+	}
+
+	$status = sanitize_persona_status_param( $request->get_param( 'status' ), 'draft', false );
+
+	$persona_payload = sanitize_persona_payload( (array) $request->get_param( 'persona' ) );
+
+	if ( '' === $persona_payload['role'] ) {
+		return new WP_REST_Response(
+			array( 'error' => __( 'Persona role is required.', 'ai-persona' ) ),
+			400
+		);
+	}
+
+	$post_id = wp_insert_post(
+		array(
+			'post_type'   => 'ai_persona',
+			'post_status' => $status,
+			'post_title'  => sanitize_text_field( $title ),
+		),
+		true
+	);
+
+	if ( is_wp_error( $post_id ) ) {
+		return new WP_REST_Response(
+			array( 'error' => $post_id->get_error_message() ),
+			500
+		);
+	}
+
+	save_persona_data( $post_id, $persona_payload );
+
+	$data = build_persona_response( $post_id );
+	$data['status'] = $status;
+
+	return new WP_REST_Response( $data, 201 );
+}
+
+/**
+ * Update an existing persona via REST.
+ *
+ * @param WP_REST_Request $request Request object.
+ * @return WP_REST_Response
+ */
+function handle_persona_update( WP_REST_Request $request ) {
+	$persona_id = absint( $request->get_param( 'id' ) );
+
+	if ( ! $persona_id || 'ai_persona' !== get_post_type( $persona_id ) ) {
+		return new WP_REST_Response(
+			array( 'error' => __( 'Persona not found.', 'ai-persona' ) ),
+			404
+		);
+	}
+
+	$post_update = array( 'ID' => $persona_id );
+	$needs_update = false;
+
+	if ( null !== $request->get_param( 'title' ) ) {
+		$title = sanitize_text_field( (string) $request->get_param( 'title' ) );
+		if ( '' === $title ) {
+			return new WP_REST_Response(
+				array( 'error' => __( 'Persona title cannot be empty.', 'ai-persona' ) ),
+				400
+			);
+		}
+		$post_update['post_title'] = $title;
+		$needs_update              = true;
+	}
+
+	if ( null !== $request->get_param( 'status' ) ) {
+		$status = sanitize_persona_status_param( $request->get_param( 'status' ), null, true );
+		if ( null === $status ) {
+			return new WP_REST_Response(
+				array( 'error' => __( 'Invalid status supplied.', 'ai-persona' ) ),
+				400
+			);
+		}
+		$post_update['post_status'] = $status;
+		$needs_update               = true;
+	}
+
+	if ( $needs_update ) {
+		$result = wp_update_post( $post_update, true );
+		if ( is_wp_error( $result ) ) {
+			return new WP_REST_Response(
+				array( 'error' => $result->get_error_message() ),
+				500
+			);
+		}
+	}
+
+	if ( null !== $request->get_param( 'persona' ) ) {
+		$persona_payload = sanitize_persona_payload( (array) $request->get_param( 'persona' ) );
+		if ( '' === $persona_payload['role'] ) {
+			return new WP_REST_Response(
+				array( 'error' => __( 'Persona role is required.', 'ai-persona' ) ),
+				400
+			);
+		}
+		save_persona_data( $persona_id, $persona_payload );
+	}
+
+	$data = build_persona_response( $persona_id );
+
+	return new WP_REST_Response( $data, 200 );
+}
+
+/**
+ * Normalise status parameter from REST requests.
+ *
+ * @param mixed  $status  Raw status.
+ * @param string $default Default value when not strict.
+ * @param bool   $strict  When true, invalid statuses return null.
+ * @return string|null
+ */
+function sanitize_persona_status_param( $status, $default = 'draft', $strict = false ) {
+	if ( null === $status ) {
+		return $strict ? null : $default;
+	}
+
+	$status  = sanitize_key( (string) $status );
+	$allowed = array( 'draft', 'publish', 'pending', 'private' );
+
+	if ( in_array( $status, $allowed, true ) ) {
+		return $status;
+	}
+
+	return $strict ? null : $default;
+}
+
+/**
+ * Build REST response payload for a persona.
+ *
+ * @param int $post_id Persona post ID.
+ * @return array
+ */
+function build_persona_response( $post_id ) {
+	$persona  = get_persona_data( $post_id );
+	$compiled = compile_persona_prompt( $persona, array( 'persona_id' => $post_id ) );
+	$status   = function_exists( 'get_post_status' ) ? get_post_status( $post_id ) : 'draft';
+	$post     = function_exists( 'get_post' ) ? get_post( $post_id ) : null;
+	$title    = $post && isset( $post->post_title ) ? $post->post_title : '';
+
+	return array(
+		'id'              => $post_id,
+		'title'           => $title,
+		'status'          => $status,
+		'persona'         => $persona,
+		'compiled_prompt' => $compiled,
+	);
 }
 
 /**

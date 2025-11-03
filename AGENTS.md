@@ -38,3 +38,4 @@ The default Ollama provider runs locally and avoids transmitting content externa
 - REST endpoints now accept `persona_id` and automatically assemble the system prompt; pass user inputs as `prompt` and keep nonces/API auth ready for streaming endpoints.
 - Each persona edit screen exposes an **Export Persona JSON** button (and REST route `GET /wp-json/ai-persona/v1/persona/{id}`) returning the structured data and compiled prompt for automation workflows.
 - Import personas by uploading the exported JSON in the persona editor—ensure the file carries a `.json` extension and save the post to apply it; server-side sanitization mirrors manual entry.
+- Programmatic workflows can `POST /wp-json/ai-persona/v1/persona` to create personas (or `POST /persona/{id}` to update) using the same JSON structure as export/import.

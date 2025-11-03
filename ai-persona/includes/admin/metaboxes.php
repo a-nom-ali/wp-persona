@@ -2,6 +2,9 @@
 
 namespace Ai_Persona\Admin;
 
+use function Ai_Persona\sanitize_persona_payload;
+use function Ai_Persona\save_persona_data;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -220,93 +223,10 @@ function save_metabox( $post_id ) {
 		}
 	}
 
-	$role = isset( $payload['role'] ) ? sanitize_textarea_field( $payload['role'] ) : '';
-
-	$guidelines = array();
-	if ( ! empty( $payload['guidelines'] ) && is_array( $payload['guidelines'] ) ) {
-		foreach ( $payload['guidelines'] as $item ) {
-			$item = sanitize_text_field( $item );
-			if ( '' !== $item ) {
-				$guidelines[] = $item;
-			}
-		}
-	}
-
-	$constraints = array();
-	if ( ! empty( $payload['constraints'] ) && is_array( $payload['constraints'] ) ) {
-		foreach ( $payload['constraints'] as $item ) {
-			$item = sanitize_text_field( $item );
-			if ( '' !== $item ) {
-				$constraints[] = $item;
-			}
-		}
-	}
-
-	$examples = array();
-	if ( ! empty( $payload['examples'] ) && is_array( $payload['examples'] ) ) {
-		foreach ( $payload['examples'] as $example ) {
-			if ( ! is_array( $example ) ) {
-				continue;
-			}
-
-			$input  = isset( $example['input'] ) ? sanitize_textarea_field( $example['input'] ) : '';
-			$output = isset( $example['output'] ) ? sanitize_textarea_field( $example['output'] ) : '';
-
-			if ( '' === $input && '' === $output ) {
-				continue;
-			}
-
-			$examples[] = array(
-				'input'  => $input,
-				'output' => $output,
-			);
-		}
-	}
-
-	$variables = array();
-	if ( ! empty( $payload['variables'] ) && is_array( $payload['variables'] ) ) {
-		foreach ( $payload['variables'] as $variable ) {
-			if ( ! is_array( $variable ) ) {
-				continue;
-			}
-
-			$name        = isset( $variable['name'] ) ? sanitize_key( $variable['name'] ) : '';
-			$description = isset( $variable['description'] ) ? sanitize_textarea_field( $variable['description'] ) : '';
-
-			if ( '' === $name ) {
-				continue;
-			}
-
-			$variables[] = array(
-				'name'        => $name,
-				'description' => $description,
-			);
-		}
-	}
-
-	ai_persona_update_meta( $post_id, 'ai_persona_role', $role );
-	ai_persona_update_meta( $post_id, 'ai_persona_guidelines', $guidelines );
-	ai_persona_update_meta( $post_id, 'ai_persona_constraints', $constraints );
-	ai_persona_update_meta( $post_id, 'ai_persona_examples', $examples );
-	ai_persona_update_meta( $post_id, 'ai_persona_variables', $variables );
+	$sanitized = sanitize_persona_payload( $payload );
+	save_persona_data( $post_id, $sanitized );
 }
 add_action( 'save_post_ai_persona', __NAMESPACE__ . '\\save_metabox' );
-
-/**
- * Update or delete persona meta.
- *
- * @param int    $post_id Post ID.
- * @param string $meta_key Meta key.
- * @param mixed  $value Meta value.
- */
-function ai_persona_update_meta( $post_id, $meta_key, $value ) {
-	if ( empty( $value ) && '0' !== $value ) {
-		delete_post_meta( $post_id, $meta_key );
-		return;
-	}
-
-	update_post_meta( $post_id, $meta_key, $value );
-}
 /**
  * Process persona import upload.
  *

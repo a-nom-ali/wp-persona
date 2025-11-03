@@ -137,6 +137,101 @@ function compile_persona_prompt( array $persona, array $context = array() ) {
 }
 
 /**
+ * Sanitize persona payload from user input.
+ *
+ * @param array $payload Raw payload.
+ * @return array
+ */
+function sanitize_persona_payload( $payload ) {
+    $payload   = is_array( $payload ) ? $payload : array();
+    $role      = isset( $payload['role'] ) ? sanitize_textarea_field( (string) $payload['role'] ) : '';
+    $guidelines_raw  = isset( $payload['guidelines'] ) ? (array) $payload['guidelines'] : array();
+    $constraints_raw = isset( $payload['constraints'] ) ? (array) $payload['constraints'] : array();
+    $examples_raw    = isset( $payload['examples'] ) ? (array) $payload['examples'] : array();
+    $variables_raw   = isset( $payload['variables'] ) ? (array) $payload['variables'] : array();
+
+    $guidelines = array();
+    foreach ( $guidelines_raw as $item ) {
+        $item = sanitize_text_field( (string) $item );
+        if ( '' !== $item ) {
+            $guidelines[] = $item;
+        }
+    }
+
+    $constraints = array();
+    foreach ( $constraints_raw as $item ) {
+        $item = sanitize_text_field( (string) $item );
+        if ( '' !== $item ) {
+            $constraints[] = $item;
+        }
+    }
+
+    $examples = array();
+    foreach ( $examples_raw as $example ) {
+        if ( ! is_array( $example ) ) {
+            continue;
+        }
+
+        $input  = sanitize_textarea_field( isset( $example['input'] ) ? (string) $example['input'] : '' );
+        $output = sanitize_textarea_field( isset( $example['output'] ) ? (string) $example['output'] : '' );
+
+        if ( '' === $input && '' === $output ) {
+            continue;
+        }
+
+        $examples[] = array(
+            'input'  => $input,
+            'output' => $output,
+        );
+    }
+
+    $variables = array();
+    foreach ( $variables_raw as $variable ) {
+        if ( ! is_array( $variable ) ) {
+            continue;
+        }
+
+        $name = sanitize_key( isset( $variable['name'] ) ? (string) $variable['name'] : '' );
+
+        if ( '' === $name ) {
+            continue;
+        }
+
+        $variables[] = array(
+            'name'        => $name,
+            'description' => sanitize_textarea_field( isset( $variable['description'] ) ? (string) $variable['description'] : '' ),
+        );
+    }
+
+    return array(
+        'role'        => $role,
+        'guidelines'  => $guidelines,
+        'constraints' => $constraints,
+        'examples'    => $examples,
+        'variables'   => $variables,
+    );
+}
+
+/**
+ * Persist persona data to post meta.
+ *
+ * @param int   $post_id Persona post ID.
+ * @param array $persona Persona payload.
+ * @return array Sanitized persona data.
+ */
+function save_persona_data( $post_id, array $persona ) {
+    $persona = sanitize_persona_payload( $persona );
+
+    update_or_delete_meta( $post_id, 'ai_persona_role', $persona['role'] );
+    update_or_delete_meta( $post_id, 'ai_persona_guidelines', $persona['guidelines'] );
+    update_or_delete_meta( $post_id, 'ai_persona_constraints', $persona['constraints'] );
+    update_or_delete_meta( $post_id, 'ai_persona_examples', $persona['examples'] );
+    update_or_delete_meta( $post_id, 'ai_persona_variables', $persona['variables'] );
+
+    return $persona;
+}
+
+/**
  * Normalize text list meta to array of trimmed strings.
  *
  * @param mixed $value Stored meta value.
@@ -233,4 +328,20 @@ function normalize_variables( $value ) {
 	}
 
 	return $variables;
+}
+
+/**
+ * Update or delete meta value depending on emptiness.
+ *
+ * @param int    $post_id Post ID.
+ * @param string $meta_key Meta key.
+ * @param mixed  $value Meta value.
+ */
+function update_or_delete_meta( $post_id, $meta_key, $value ) {
+    if ( empty( $value ) && '0' !== $value ) {
+        delete_post_meta( $post_id, $meta_key );
+        return;
+    }
+
+    update_post_meta( $post_id, $meta_key, $value );
 }
