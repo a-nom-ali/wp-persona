@@ -40,3 +40,4 @@ The default Ollama provider runs locally and avoids transmitting content externa
 - Import personas by uploading the exported JSON in the persona editor—ensure the file carries a `.json` extension and save the post to apply it; server-side sanitization mirrors manual entry.
 - Programmatic workflows can `POST /wp-json/ai-persona/v1/persona` to create personas (or `POST /persona/{id}` to update) using the same JSON structure as export/import.
 - Use `DELETE /wp-json/ai-persona/v1/persona/{id}` to remove personas and `POST /persona/{id}/duplicate` to clone them—mirror these flows in automations instead of scripting raw database writes.
+- For n8n/webhooks: leverage `ai_persona_prompt_before_render` to inject runtime context and `ai_persona_response_after_generate` to push responses outbound; maintain HMAC/nonce validation when exposing the REST endpoints publicly.

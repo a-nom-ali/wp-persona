@@ -265,3 +265,34 @@ Additional helpers:
 
 - `DELETE /wp-json/ai-persona/v1/persona/{id}` removes a persona (and its structured data).
 - `POST /wp-json/ai-persona/v1/persona/{id}/duplicate` creates a copy; optionally pass `title` or `status` in the body to override defaults.
+
+### Integrating with n8n / Webhooks
+
+- **n8n**: Use an HTTP Request node to call the create/update endpoints with the payload structure shown above, then branch to downstream automations. Store the returned `compiled_prompt` in subsequent nodes (e.g., OpenAI connectors) to ensure prompts stay in sync with personas configured in WordPress.
+- **Inbound Webhooks**: Register an `ai_persona_prompt_before_render` filter to inject runtime context from request headers or signed payloads before the prompt is sent to providers. Example:
+
+```php
+add_filter( 'ai_persona_prompt_before_render', function ( $prompt, $context ) {
+    if ( ! empty( $context['webhook_payload']['segment'] ) ) {
+        $prompt .= "\n\nCustomer segment: " . sanitize_text_field( $context['webhook_payload']['segment'] );
+    }
+
+    return $prompt;
+}, 10, 2 );
+```
+
+- **Outbound Webhooks**: Hook into `ai_persona_response_after_generate` to post results to external systems:
+
+```php
+add_action( 'ai_persona_response_after_generate', function ( $response, $prompt, $context ) {
+    wp_remote_post( 'https://automation.example/webhook', array(
+        'body' => wp_json_encode( array(
+            'persona_id' => $context['persona_id'] ?? null,
+            'output'     => $response['output'] ?? '',
+        ) ),
+        'headers' => array( 'Content-Type' => 'application/json' ),
+    ) );
+}, 10, 3 );
+```
+
+These examples provide a starting point for n8n flows, Zapier-style automations, or custom webhook integrations without modifying core plugin files.
