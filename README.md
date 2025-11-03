@@ -49,15 +49,18 @@ The plugin prioritizes:
   - Session management for context retention.
 - **API Endpoint**: REST API route (`/wp-json/ai-persona/v1/generate`) for querying personas externally (e.g., from n8n).
 - **Hooks and Filters**:
-  - `ai_persona_prompt_before_render`: Filter the final prompt string.
-  - `ai_persona_response_after_generate`: Action to process AI outputs (e.g., logging, modifications).
-  - `ai_persona_chat_init`: Action for customizing chat UI/JS.
-  - `ai_persona_export_format`: Filter to add custom export formats.
-  - Additional hooks for model selection, API keys, and rate limiting.
+  - `ai_persona_resolve_provider`: Override the active provider instance (e.g., inject custom API clients).
+  - `ai_persona_prompt_before_render`: Filter the system prompt before it reaches the provider.
+  - `ai_persona_compiled_prompt`: Modify the compiled persona prompt generated from stored data.
+  - `ai_persona_persona_data`: Adjust structured persona data before the REST layer consumes it.
+  - `ai_persona_response_after_generate`: React to provider responses (logging, post-processing, analytics).
+  - `ai_persona_design_tokens`: Extend the design-token map that styles the chat UI.
+  - `ai_persona_chat_attributes`: Tweak shortcode/block attributes prior to render.
 
 ### Technical Details
 - **API Integration**: OpenAI Chat Completions (gpt-4o-mini default); filterable for other endpoints.
 - **Context Injection**: Automatically include WordPress context (e.g., post title, user role) via filters.
+- **Persona Helpers**: `Ai_Persona\get_persona_data()` returns structured persona arrays; `Ai_Persona\compile_persona_prompt()` builds the system prompt consumed by providers.
 - **Rate Limiting and Security**: IP-based transients; nonce verification; API key stored encrypted.
 
 ```mermaid
@@ -191,3 +194,27 @@ Dynamic context: User is {{user_name}}, on page {{page_title}}.
 2. **Add Custom Post Type**: Implement `ai_persona` CPT with metaboxes as described.
 3. **Incorporate Hooks**: Ensure every key process (prompt build, API call, response) has actions/filters.
 4. **Test Extensibility**: Verify a developer can override the AI model via filter.
+## REST API Usage
+
+The plugin exposes `POST /wp-json/ai-persona/v1/generate` and `GET /wp-json/ai-persona/v1/stream`.
+
+Example payload:
+
+```bash
+curl -X POST https://example.com/wp-json/ai-persona/v1/generate \
+  -H "Content-Type: application/json" \
+  -H "X-WP-Nonce: <nonce>" \
+  -d '{
+    "persona_id": 123,
+    "prompt": "Help me summarise the latest report",
+    "context": {
+      "thread_id": "abc-123"
+    }
+  }'
+```
+
+When `persona_id` is supplied, the endpoint loads structured persona data, compiles the system prompt, and forwards the user input as `user_input` inside the provider context. The JSON response includes the provider result, the compiled prompt, the persona payload, and the original user input.
+
+The streaming endpoint (`/stream`) mirrors the same parameters and emits Server-Sent Events (`message`, `error`, `complete`).
+
+Consumers that wish to supply a fully custom system prompt can omit `persona_id` and pass `system_prompt` or continue using the legacy `prompt` value.

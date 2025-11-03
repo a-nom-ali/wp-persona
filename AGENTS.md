@@ -17,6 +17,8 @@ Target PHPUnit-based integration tests via the WordPress testing suite stored un
 
 Run PHP unit tests from the plugin root: `composer install` (first run) then `composer test`. The bootstrap stubs core WordPress helpers so provider logic can be validated without a full WP stack. For JavaScript smoke coverage, use `node tests/js/chat-streaming.test.js` (Node 12+).
 
+Hook into `Ai_Persona\get_persona_data()` / `Ai_Persona\compile_persona_prompt()` when you need structured persona details. Filters are provided (`ai_persona_persona_data`, `ai_persona_compiled_prompt`, `ai_persona_resolve_provider`) so integrations can override storage, prompt formulation, or provider selection without touching core classes.
+
 ## Commit & Pull Request Guidelines
 Mirror the existing history: imperative, sentence-cased summaries (`Add roadmap for planned enhancements`). Reference issues with `Refs #123` when relevant, and keep bodies wrapped at 72 characters. Pull requests must outline scope, testing performed, and migration steps. Include screenshots or GIFs for UI changes, highlight new hooks or filters, and call out security considerations (API key handling, nonce usage) so reviewers can assess risk quickly.
 
@@ -33,3 +35,4 @@ The default Ollama provider runs locally and avoids transmitting content externa
 - Use this section to capture environment or workflow details that agents and contributors should keep in mind between updates.
 - Plugin currently installed on `http://campaign-forge.local` with the plugin directory symlinked to this repository folder.
 - Gutenberg chat block now exposes persona selection and header controls via the inspector; create at least one published persona before adding the block to avoid zero-state UX hiccups.
+- REST endpoints now accept `persona_id` and automatically assemble the system prompt; pass user inputs as `prompt` and keep nonces/API auth ready for streaming endpoints.

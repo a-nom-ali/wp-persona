@@ -21,6 +21,7 @@ require_once AI_PERSONA_PLUGIN_DIR . 'includes/providers/class-null-provider.php
 require_once AI_PERSONA_PLUGIN_DIR . 'includes/providers/class-ollama-provider.php';
 require_once AI_PERSONA_PLUGIN_DIR . 'includes/providers/class-openai-provider.php';
 require_once AI_PERSONA_PLUGIN_DIR . 'includes/providers/class-anthropic-provider.php';
+require_once AI_PERSONA_PLUGIN_DIR . 'includes/persona.php';
 require_once AI_PERSONA_PLUGIN_DIR . 'includes/frontend/design-tokens.php';
 
 // -----------------------------------------------------------------------------
@@ -330,5 +331,52 @@ if ( ! function_exists( 'wp_remote_post' ) ) {
         }
 
         return $response;
+    }
+}
+
+// -----------------------------------------------------------------------------
+// Post meta helpers.
+// -----------------------------------------------------------------------------
+
+global $ai_persona_tests_meta_store;
+$ai_persona_tests_meta_store = array();
+
+function ai_persona_tests_set_post_meta( $post_id, $key, $value ) {
+    global $ai_persona_tests_meta_store;
+
+    $post_id = absint( $post_id );
+
+    if ( ! isset( $ai_persona_tests_meta_store[ $post_id ] ) ) {
+        $ai_persona_tests_meta_store[ $post_id ] = array();
+    }
+
+    $ai_persona_tests_meta_store[ $post_id ][ $key ] = $value;
+}
+
+if ( ! function_exists( 'get_post_meta' ) ) {
+    function get_post_meta( $post_id, $key = '', $single = false ) {
+        global $ai_persona_tests_meta_store;
+
+        $post_id = absint( $post_id );
+
+        if ( ! isset( $ai_persona_tests_meta_store[ $post_id ] ) ) {
+            return $single ? '' : array();
+        }
+
+        if ( '' === $key ) {
+            return $ai_persona_tests_meta_store[ $post_id ];
+        }
+
+        if ( ! array_key_exists( $key, $ai_persona_tests_meta_store[ $post_id ] ) ) {
+            return $single ? '' : array();
+        }
+
+        $value = $ai_persona_tests_meta_store[ $post_id ][ $key ];
+
+        if ( $single ) {
+            return is_array( $value ) ? reset( $value ) : $value;
+        }
+
+        return $value;
     }
 }

@@ -3,6 +3,8 @@
 namespace Ai_Persona\Frontend;
 
 use Ai_Persona\API;
+use function Ai_Persona\compile_persona_prompt;
+use function Ai_Persona\get_persona_data;
 use WP_REST_Request;
 use WP_REST_Response;
 
@@ -62,13 +64,38 @@ function permissions_check( WP_REST_Request $request ) {
  * @return WP_REST_Response
  */
 function handle_generate( WP_REST_Request $request ) {
-	$prompt  = $request->get_param( 'prompt' );
-	$context = (array) $request->get_param( 'context' );
+	$user_input = (string) $request->get_param( 'prompt' );
+	$persona_id = absint( $request->get_param( 'persona_id' ) );
+	$context    = (array) $request->get_param( 'context' );
 
-	$api = new API();
-	$result = $api->generate( (string) $prompt, $context );
+	$persona_data = $persona_id ? get_persona_data( $persona_id ) : null;
 
-	return new WP_REST_Response( $result, 200 );
+	if ( $persona_id && ! $persona_data ) {
+		return new WP_REST_Response(
+			array( 'error' => __( 'Persona not found.', 'ai-persona' ) ),
+			404
+		);
+	}
+
+	$compiled_prompt = $persona_data ? compile_persona_prompt( $persona_data, array( 'persona_id' => $persona_id ) ) : (string) $request->get_param( 'system_prompt' );
+	$prompt          = $compiled_prompt ?: (string) $request->get_param( 'prompt' );
+
+	$context['persona_id'] = $persona_id ?: null;
+	$context['persona']    = $persona_data ?: null;
+	$context['user_input'] = $user_input;
+
+	$api     = new API();
+	$result  = $api->generate( (string) $prompt, $context );
+	$payload = array_merge(
+		$result,
+		array(
+			'persona'         => $persona_data,
+			'compiled_prompt' => $prompt,
+			'user_input'      => $user_input,
+		)
+	);
+
+	return new WP_REST_Response( $payload, 200 );
 }
 
 /**
@@ -77,10 +104,10 @@ function handle_generate( WP_REST_Request $request ) {
  * @param WP_REST_Request $request Request object.
  */
 function handle_stream( WP_REST_Request $request ) {
-	$prompt     = (string) $request->get_param( 'prompt' );
+	$user_input = (string) $request->get_param( 'prompt' );
 	$persona_id = absint( $request->get_param( 'persona_id' ) );
 
-	if ( '' === trim( $prompt ) ) {
+	if ( '' === trim( $user_input ) ) {
 		status_header( 400 );
 		echo wp_json_encode(
 			array(
@@ -90,8 +117,25 @@ function handle_stream( WP_REST_Request $request ) {
 		exit;
 	}
 
+	$persona_data = $persona_id ? get_persona_data( $persona_id ) : null;
+
+	if ( $persona_id && ! $persona_data ) {
+		status_header( 404 );
+		echo wp_json_encode(
+			array(
+				'error' => __( 'Persona not found.', 'ai-persona' ),
+			)
+		);
+		exit;
+	}
+
+	$compiled_prompt = $persona_data ? compile_persona_prompt( $persona_data, array( 'persona_id' => $persona_id ) ) : (string) $request->get_param( 'system_prompt' );
+	$prompt          = $compiled_prompt ?: $user_input;
+
 	$context = array(
-		'persona_id' => $persona_id,
+		'persona_id' => $persona_id ?: null,
+		'persona'    => $persona_data,
+		'user_input' => $user_input,
 	);
 
 	start_stream();
@@ -130,7 +174,7 @@ function handle_stream( WP_REST_Request $request ) {
 		emit_sse( 'complete', $aggregate );
 	}
 
-	end_stream();
+end_stream();
 }
 
 /**
