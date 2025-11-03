@@ -4,6 +4,9 @@
 		<testsuite name="AI Persona Plugin">
 			<file>tests/phpunit/OllamaProviderTest.php</file>
 			<file>tests/phpunit/NullProviderTest.php</file>
+			<file>tests/phpunit/PluginProviderResolutionTest.php</file>
+			<file>tests/phpunit/ApiPermissionsTest.php</file>
+			<file>tests/phpunit/ApiStreamTest.php</file>
 		</testsuite>
 	</testsuites>
 </phpunit>
