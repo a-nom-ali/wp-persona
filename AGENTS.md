@@ -53,4 +53,5 @@ The default Ollama provider runs locally and avoids transmitting content externa
 - Permissions: adjust which roles can read/edit/publish/delete personas under Settings → AI Persona → Permissions. The stored map always keeps Administrators in every capability bucket.
 - Persona capabilities default to author/editor roles; override via `ai_persona_capability_map` when integrating custom role policies. Document any changes for downstream agents.
 - New n8n examples: `integrations/n8n-persona-sync.json` (create personas) and `integrations/n8n-agent-fetch-persona.json` (fetch persona + call OpenAI). Update credentials before sharing.
+- Hooks recap: `ai_persona_request_context` (tune REST payloads), `ai_persona_frontend_settings` (adjust localized chat config), `ai_persona_chat_html` (filter rendered widget markup), `ai_persona_log_entry` (augment/skip analytics logs), provider request arg filters, and `ai_persona_roles_synced` after capability syncs.
 - Analytics dashboard lives under **AI Personas → Analytics** once logging is enabled; previews are truncated to protect PII.

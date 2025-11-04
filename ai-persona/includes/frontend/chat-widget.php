@@ -90,7 +90,15 @@ function render_chat_widget( $atts ) {
 	</div>
 	<?php
 
-	return ob_get_clean();
+	$output = ob_get_clean();
+
+	/**
+	 * Filter the rendered chat widget markup.
+	 *
+	 * @param string $output Rendered HTML output.
+	 * @param array  $atts   Parsed shortcode attributes.
+	 */
+	return apply_filters( 'ai_persona_chat_html', $output, $atts );
 }
 
 /**

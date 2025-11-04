@@ -57,12 +57,18 @@ The plugin prioritizes:
   - `ai_persona_prompt_before_render`: Filter the system prompt before it reaches the provider.
   - `ai_persona_compiled_prompt`: Modify the compiled persona prompt generated from stored data.
   - `ai_persona_persona_data`: Adjust structured persona data before the REST layer consumes it.
+  - `ai_persona_request_context`: Refine the request context (persona data, conversation history) before provider calls.
   - `ai_persona_response_after_generate`: React to provider responses (logging, post-processing, analytics).
-  - `ai_persona_design_tokens`: Extend the design-token map that styles the chat UI.
+  - `ai_persona_design_tokens` / `ai_persona_design_tokens_css`: Extend design tokens or tweak the generated CSS.
+  - `ai_persona_frontend_settings`: Modify localized settings used by the front-end chat widget.
   - `ai_persona_chat_attributes`: Tweak shortcode/block attributes prior to render.
+  - `ai_persona_chat_html`: Filter the rendered chat widget markup before it is returned.
+  - `ai_persona_block_registration_args`: Amend Gutenberg block registration args (category, icon, render callback).
   - `ai_persona_rest_permissions_check`: Override REST authentication handling (return `true` to allow or a `WP_Error` to block).
   - `ai_persona_template_library`: Inject additional persona templates into the admin template browser.
   - `ai_persona_capability_map`: Adjust the capability mapping for persona CRUD actions and align with custom roles.
+  - `ai_persona_ollama_request_args` / `ai_persona_openai_request_args` / `ai_persona_anthropic_request_args`: Adjust outbound API payloads per provider.
+  - `ai_persona_log_entry`: Amend or suppress analytics log entries before they are written.
 
 ### Technical Details
 - **API Integration**: OpenAI Chat Completions (gpt-4o-mini default); filterable for other endpoints.
@@ -386,6 +392,7 @@ This uses `wp i18n make-pot` to write `languages/ai-persona.pot`. Only commit th
 - Each entry contains a timestamp, persona ID, provider, prompt length, and the user input; sensitive provider responses are not stored by default.
 - Visit **AI Personas → Analytics** to view dashboards with provider breakdowns, top personas, and recent activity. User input previews are truncated by default for privacy.
 - Listen to the `ai_persona_logged_event` action to forward logs to external observability systems.
+- Hook `ai_persona_roles_synced` after capability maps are re-applied (e.g., on activation or settings change).
 
 
 ### WordPress Core Tests

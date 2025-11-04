@@ -184,6 +184,14 @@ function handle_generate( WP_REST_Request $request ) {
 	$context['user_input'] = $user_input;
 	$context['messages']   = $conversation_history;
 
+	/**
+	 * Filter the request context before it is dispatched to the provider.
+	 *
+	 * @param array           $context Prepared request context.
+	 * @param WP_REST_Request $request Original REST request.
+	 */
+	$context = apply_filters( 'ai_persona_request_context', $context, $request );
+
 	$api     = new API();
 	$result  = $api->generate( (string) $prompt, $context );
 	$payload = array_merge(
@@ -262,6 +270,9 @@ function handle_stream( WP_REST_Request $request ) {
 		'user_input' => $user_input,
 		'messages'   => $conversation_history,
 	);
+
+	/** This filter is documented in ai_persona/includes/frontend/api-endpoints.php */
+	$context = apply_filters( 'ai_persona_request_context', $context, $request );
 
 	start_stream();
 

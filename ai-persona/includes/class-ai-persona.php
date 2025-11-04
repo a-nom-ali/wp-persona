@@ -118,11 +118,21 @@ final class Plugin {
 	 * Register dynamic Gutenberg blocks.
 	 */
 	public function register_block_types() {
+		$args = array(
+			'render_callback' => 'Ai_Persona\\Frontend\\render_chat_block',
+		);
+
+		/**
+		 * Filter the registration arguments for the chat block.
+		 *
+		 * @param array  $args  Block registration arguments.
+		 * @param string $block Block name.
+		 */
+		$args = apply_filters( 'ai_persona_block_registration_args', $args, 'ai-persona/chat' );
+
 		register_block_type(
 			AI_PERSONA_PLUGIN_DIR . 'blocks/ai-persona-chat',
-			array(
-				'render_callback' => 'Ai_Persona\\Frontend\\render_chat_block',
-			)
+			$args
 		);
 	}
 
@@ -203,13 +213,22 @@ final class Plugin {
 			true
 		);
 
+		$settings = array(
+			'restUrl' => esc_url_raw( trailingslashit( rest_url( 'ai-persona/v1' ) ) ),
+			'nonce'   => wp_create_nonce( 'wp_rest' ),
+		);
+
+		/**
+		 * Filter the localized settings delivered to the chat widget.
+		 *
+		 * @param array $settings Localized script data.
+		 */
+		$settings = apply_filters( 'ai_persona_frontend_settings', $settings );
+
 		wp_localize_script(
 			'ai-persona-frontend',
 			'AiPersonaSettings',
-			array(
-				'restUrl' => esc_url_raw( trailingslashit( rest_url( 'ai-persona/v1' ) ) ),
-				'nonce'   => wp_create_nonce( 'wp_rest' ),
-			)
+			$settings
 		);
 	}
 

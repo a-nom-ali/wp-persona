@@ -47,6 +47,22 @@ function log_generation_event( $response, $prompt, $context ) {
 		'user_input' => isset( $context['user_input'] ) ? (string) $context['user_input'] : '',
 	);
 
+	/**
+	 * Filter the analytics log entry before it is persisted.
+	 *
+	 * Return false to skip logging.
+	 *
+	 * @param array|false $entry    Prepared log entry.
+	 * @param array        $response Provider response payload.
+	 * @param string       $prompt   Compiled prompt string.
+	 * @param array        $context  Request context data.
+	 */
+	$entry = apply_filters( 'ai_persona_log_entry', $entry, $response, $prompt, $context );
+
+	if ( false === $entry ) {
+		return;
+	}
+
 	$log_line = wp_json_encode( $entry ) . "\n";
 
 	$file = trailingslashit( $dir ) . 'persona.log';
