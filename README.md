@@ -60,6 +60,7 @@ The plugin prioritizes:
   - `ai_persona_chat_attributes`: Tweak shortcode/block attributes prior to render.
   - `ai_persona_rest_permissions_check`: Override REST authentication handling (return `true` to allow or a `WP_Error` to block).
   - `ai_persona_template_library`: Inject additional persona templates into the admin template browser.
+  - `ai_persona_capability_map`: Adjust the capability mapping for persona CRUD actions and align with custom roles.
 
 ### Technical Details
 - **API Integration**: OpenAI Chat Completions (gpt-4o-mini default); filterable for other endpoints.
@@ -175,6 +176,15 @@ Dynamic context: User is {{user_name}}, on page {{page_title}}.
 - **Nonces and Permissions**: Required for admin actions and API calls.
 - **Rate Limiting**: Filterable transient-based limits per user/IP.
 - **Logging**: Optional action for auditing generations.
+- **Role Capabilities**: The plugin grants create/read access to Editors and Authors by default while reserving destructive actions for Administrators. Override via the `ai_persona_capability_map` filter if your org needs bespoke permissions:
+
+```php
+add_filter( 'ai_persona_capability_map', function ( $caps ) {
+    $caps['publish_posts'] = 'publish_custom_personas';
+    $caps['edit_posts']    = 'edit_custom_personas';
+    return $caps;
+} );
+```
 
 ---
 
