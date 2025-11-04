@@ -289,6 +289,7 @@ Additional helpers:
 ### Integrating with n8n / Webhooks
 
 - **n8n**: Use an HTTP Request node to call the create/update endpoints with the payload structure shown above, then branch to downstream automations. Store the returned `compiled_prompt` in subsequent nodes (e.g., OpenAI connectors) to ensure prompts stay in sync with personas configured in WordPress.
+- A sample workflow lives in `integrations/n8n-persona-sync.json`; import it into n8n and update the credentials node (`AI Persona Basic Auth`) plus the values in the “Persona Payload” Set node.
 - **Inbound Webhooks**: Register an `ai_persona_prompt_before_render` filter to inject runtime context from request headers or signed payloads before the prompt is sent to providers. Example:
 
 ```php

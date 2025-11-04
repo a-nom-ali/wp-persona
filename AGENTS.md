@@ -44,3 +44,4 @@ The default Ollama provider runs locally and avoids transmitting content externa
 - Default REST requests rely on WordPress cookies + `wp_rest` nonces; for backend automations, document the use of Application Passwords and enforce HTTPS to keep credentials confidential.
 - Local WordPress credentials use `admin`/`admin`; rotate these before deploying outside of development.
 - Automation scripts live under `scripts/` (`persona-export.sh`, `persona-import.sh`) and expect `AI_PERSONA_SITE`, `AI_PERSONA_USER`, and `AI_PERSONA_APP_PASSWORD` env vars.
+- Reference n8n workflow (`integrations/n8n-persona-sync.json`) demonstrates how to chain a manual trigger, payload node, and REST call using basic auth credentials.

@@ -1,0 +1,107 @@
+{
+  "name": "AI Persona Sync",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "1",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [260, 300]
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            { "name": "site", "value": "https://example.com" },
+            { "name": "user", "value": "automation-user" },
+            { "name": "password", "value": "application-password" }
+          ],
+          "json": [
+            {
+              "name": "persona",
+              "value": {
+                "title": "Creative Coach",
+                "status": "draft",
+                "persona": {
+                  "role": "You are a creative writing coach.",
+                  "guidelines": [
+                    "Offer constructive feedback",
+                    "Ask clarifying questions"
+                  ],
+                  "constraints": [
+                    "Avoid spoilers"
+                  ],
+                  "variables": [
+                    {
+                      "name": "user_name",
+                      "description": "Name of the author"
+                    }
+                  ],
+                  "examples": [
+                    {
+                      "input": "Help me brainstorm a plot.",
+                      "output": "Let's explore three plot hooks..."
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "id": "2",
+      "name": "Persona Payload",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [500, 300]
+    },
+    {
+      "parameters": {
+        "authentication": "basicAuth",
+        "requestMethod": "POST",
+        "url": "={{$json['site']}}/wp-json/ai-persona/v1/persona",
+        "jsonParameters": true,
+        "options": {},
+        "sendBody": true,
+        "bodyParametersJson": "={{JSON.stringify($json['persona'])}}"
+      },
+      "id": "3",
+      "name": "Create Persona",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [740, 300],
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "0",
+          "name": "AI Persona Basic Auth"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Persona Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Persona Payload": {
+      "main": [
+        [
+          {
+            "node": "Create Persona",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
