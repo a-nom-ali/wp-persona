@@ -331,3 +331,9 @@ curl -u "youruser:application-password" \
 ```
 
 Ensure HTTPS is enforced before enabling application passwords to avoid leaking credentials over the network.
+
+## Analytics & Logging
+
+- Toggle the analytics/logging opt-in under **Settings → AI Persona → Analytics & Logging**. When enabled, persona generation events are appended to `wp-content/uploads/ai-persona/persona.log` as newline-delimited JSON.
+- Each entry contains a timestamp, persona ID, provider, prompt length, and the user input; sensitive provider responses are not stored by default.
+- Listen to the `ai_persona_logged_event` action to forward logs to external observability systems.

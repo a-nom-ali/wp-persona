@@ -13,6 +13,7 @@
 			<file>tests/phpunit/PersonaHelpersTest.php</file>
 			<file>tests/phpunit/AdminImportTest.php</file>
 			<file>tests/phpunit/ApiPersonaCrudTest.php</file>
+			<file>tests/phpunit/LoggingTest.php</file>
 		</testsuite>
 	</testsuites>
 </phpunit>

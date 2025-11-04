@@ -65,6 +65,7 @@ final class Plugin {
 		require_once AI_PERSONA_PLUGIN_DIR . 'includes/frontend/design-tokens.php';
 		require_once AI_PERSONA_PLUGIN_DIR . 'includes/frontend/api-endpoints.php';
 		require_once AI_PERSONA_PLUGIN_DIR . 'includes/persona.php';
+		require_once AI_PERSONA_PLUGIN_DIR . 'includes/logging.php';
 		require_once AI_PERSONA_PLUGIN_DIR . 'includes/providers/interface-provider.php';
 		require_once AI_PERSONA_PLUGIN_DIR . 'includes/providers/class-null-provider.php';
 		require_once AI_PERSONA_PLUGIN_DIR . 'includes/providers/class-ollama-provider.php';
@@ -82,6 +83,7 @@ final class Plugin {
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_frontend_assets' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_assets' ) );
 		add_filter( 'ai_persona_resolve_provider', array( $this, 'resolve_provider' ) );
+		add_action( 'ai_persona_response_after_generate', array( $this, 'handle_logging' ), 10, 3 );
 	}
 
 	/**
@@ -234,5 +236,16 @@ final class Plugin {
 			AI_PERSONA_VERSION,
 			true
 		);
+	}
+
+	/**
+	 * Conditionally log persona generation events when analytics are enabled.
+	 *
+	 * @param array  $response Provider response payload.
+	 * @param string $prompt   Compiled prompt string.
+	 * @param array  $context  Request context data.
+	 */
+	public function handle_logging( $response, $prompt, $context ) {
+		\Ai_Persona\Logging\log_generation_event( $response, $prompt, $context );
 	}
 }

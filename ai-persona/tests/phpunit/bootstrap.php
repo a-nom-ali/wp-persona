@@ -1,5 +1,11 @@
 <?php
 
+if ( ! function_exists( '__return_bool' ) ) {
+    function __return_bool( $value ) { // phpcs:ignore
+        return (bool) $value;
+    }
+}
+
 // Minimal bootstrap providing WordPress-like helpers for isolated unit tests.
 
 $plugin_root = dirname( dirname( __DIR__ ) );
@@ -209,6 +215,23 @@ if ( ! function_exists( 'get_option' ) ) {
         global $ai_persona_tests_options;
         return array_key_exists( $option, $ai_persona_tests_options ) ? $ai_persona_tests_options[ $option ] : $default;
     }
+
+if ( ! function_exists( 'update_option' ) ) {
+    function update_option( $option, $value ) { // phpcs:ignore
+        global $ai_persona_tests_options;
+        $ai_persona_tests_options[ $option ] = $value;
+        return true;
+    }
+}
+
+if ( ! function_exists( 'delete_option' ) ) {
+    function delete_option( $option ) { // phpcs:ignore
+        global $ai_persona_tests_options;
+        unset( $ai_persona_tests_options[ $option ] );
+        return true;
+    }
+}
+
 }
 
 // -----------------------------------------------------------------------------
@@ -332,6 +355,25 @@ if ( ! function_exists( 'wp_localize_script' ) ) {
 
 if ( ! function_exists( 'status_header' ) ) {
     function status_header( $code ) {} // phpcs:ignore
+}
+
+if ( ! function_exists( 'wp_upload_dir' ) ) {
+    function wp_upload_dir() { // phpcs:ignore
+        $temp = sys_get_temp_dir() . '/ai-persona-tests';
+        if ( ! is_dir( $temp ) ) {
+            mkdir( $temp, 0777, true );
+        }
+        return array( 'basedir' => $temp );
+    }
+}
+
+if ( ! function_exists( 'wp_mkdir_p' ) ) {
+    function wp_mkdir_p( $dir ) { // phpcs:ignore
+        if ( is_dir( $dir ) ) {
+            return true;
+        }
+        return mkdir( $dir, 0777, true );
+    }
 }
 
 if ( ! function_exists( 'wp_check_filetype' ) ) {
@@ -491,6 +533,26 @@ function ai_persona_tests_get_post( $post_id ) {
 
 function ai_persona_tests_set_post_meta( $post_id, $key, $value ) {
     update_post_meta( $post_id, $key, $value );
+}
+
+function ai_persona_tests_reset_uploads() {
+    $uploads = wp_upload_dir();
+    if ( empty( $uploads['basedir'] ) || ! is_dir( $uploads['basedir'] ) ) {
+        return;
+    }
+
+    $iterator = new RecursiveIteratorIterator(
+        new RecursiveDirectoryIterator( $uploads['basedir'], RecursiveDirectoryIterator::SKIP_DOTS ),
+        RecursiveIteratorIterator::CHILD_FIRST
+    );
+
+    foreach ( $iterator as $fileinfo ) {
+        if ( $fileinfo->isDir() ) {
+            rmdir( $fileinfo->getRealPath() );
+        } else {
+            unlink( $fileinfo->getRealPath() );
+        }
+    }
 }
 
 function ai_persona_tests_reset_meta() {

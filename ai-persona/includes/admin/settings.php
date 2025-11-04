@@ -63,6 +63,16 @@ function register_settings() {
 		)
 	);
 
+	register_setting(
+		'ai_persona',
+		'ai_persona_logging_enabled',
+		array(
+			'type'              => 'boolean',
+			'sanitize_callback' => '__return_bool',
+			'default'           => false,
+		)
+	);
+
 	add_settings_section(
 		'ai_persona_general',
 		__( 'General', 'ai-persona' ),
@@ -100,6 +110,21 @@ function register_settings() {
 		__NAMESPACE__ . '\\render_provider_model_field',
 		'ai-persona-settings',
 		'ai_persona_general'
+	);
+
+	add_settings_section(
+		'ai_persona_logging',
+		__( 'Analytics & Logging', 'ai-persona' ),
+		'__return_false',
+		'ai-persona-settings'
+	);
+
+	add_settings_field(
+		'ai_persona_logging_enabled',
+		__( 'Enable analytics logging', 'ai-persona' ),
+		__NAMESPACE__ . '\render_logging_field',
+		'ai-persona-settings',
+		'ai_persona_logging'
 	);
 
 	add_settings_section(
@@ -161,6 +186,22 @@ function render_api_key_field() {
 			esc_html_e( 'Optional for local Ollama deployments.', 'ai-persona' );
 		}
 		?>
+	</p>
+	<?php
+}
+
+/**
+ * Render logging toggle field.
+ */
+function render_logging_field() {
+	$value = (bool) get_option( 'ai_persona_logging_enabled', false );
+	?>
+	<label>
+		<input type="checkbox" name="ai_persona_logging_enabled" value="1" <?php checked( $value ); ?> />
+		<?php esc_html_e( 'Capture persona generation events to a log file.', 'ai-persona' ); ?>
+	</label>
+	<p class="description">
+		<?php esc_html_e( 'Logs are stored under wp-content/uploads/ai-persona/persona.log when enabled. Disable in production if analytics are not required.', 'ai-persona' ); ?>
 	</p>
 	<?php
 }
