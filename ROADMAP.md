@@ -6,7 +6,7 @@
 - [x] Scaffold admin metaboxes and settings screen with nonce and capability checks.
 - [x] Provide REST endpoint stub and shortcode/block rendering hooks.
 - [x] Register provider abstraction with default Ollama (minimax-m2:cloud) implementation.
-- [ ] Wire WordPress test suite bootstrap and sample tests for metabox saves.
+- [x] Wire WordPress test suite bootstrap and sample tests for metabox saves.
 
 ## 0.2.0 – Persona Authoring
 - [x] Flesh out structured prompt storage (role/guidelines/constraints/examples/variables).

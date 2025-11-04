@@ -46,3 +46,5 @@ The default Ollama provider runs locally and avoids transmitting content externa
 - Automation scripts live under `scripts/` (`persona-export.sh`, `persona-import.sh`) and expect `AI_PERSONA_SITE`, `AI_PERSONA_USER`, and `AI_PERSONA_APP_PASSWORD` env vars.
 - Reference n8n workflow (`integrations/n8n-persona-sync.json`) demonstrates how to chain a manual trigger, payload node, and REST call using basic auth credentials.
 - Analytics opt-in lives under **Settings → AI Persona → Analytics & Logging**; when enabled, inspect `wp-content/uploads/ai-persona/persona.log` or hook `ai_persona_logged_event` for custom telemetry pipelines.
+
+- WordPress core tests live under `tests/wpunit/`; configure `WP_PHPUNIT__DIR` (see README) and provide a test database before running `composer test:wpunit`.

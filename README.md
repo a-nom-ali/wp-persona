@@ -337,3 +337,17 @@ Ensure HTTPS is enforced before enabling application passwords to avoid leaking 
 - Toggle the analytics/logging opt-in under **Settings → AI Persona → Analytics & Logging**. When enabled, persona generation events are appended to `wp-content/uploads/ai-persona/persona.log` as newline-delimited JSON.
 - Each entry contains a timestamp, persona ID, provider, prompt length, and the user input; sensitive provider responses are not stored by default.
 - Listen to the `ai_persona_logged_event` action to forward logs to external observability systems.
+
+
+### WordPress Core Tests
+
+Run the plugin unit tests with `composer test` inside `ai-persona/`. To execute the WordPress core tests (metabox saves), install dev dependencies and point the suite at a test database:
+
+```bash
+cd ai-persona
+composer install
+WP_PHPUNIT__DIR=vendor/wp-phpunit/wp-phpunit \
+  phpunit -c tests/wpunit/phpunit.xml.dist
+```
+
+> Note: The WordPress test suite requires a MySQL database configured via `wp-tests-config.php`. See the [wp-phpunit documentation](https://github.com/wp-phpunit/wp-phpunit) for setup details.
