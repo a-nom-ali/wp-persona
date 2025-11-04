@@ -40,3 +40,10 @@
 - [x] Persona template marketplace or syncing mechanism.
 - [x] Fine-grained capability mapping for persona creation vs usage.
 - [x] Enhanced analytics dashboard with aggregated metrics and privacy guardrails.
+- [ ] Integration with other AI providers (e.g., Gemini, OpenRouter, etc).
+- [ ] Tabbed Settings
+- [ ] Add Documentation tab to Settings
+- [ ] Add Developer Documentation tab to Settings
+- [ ] Advanced variables (e.g., pull from WP queries).
+- [ ] Multi-persona switching in chat.
+- [x] Webhook support for n8n-like integrations.

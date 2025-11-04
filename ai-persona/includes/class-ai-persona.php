@@ -62,6 +62,7 @@ final class Plugin {
 		require_once AI_PERSONA_PLUGIN_DIR . 'includes/admin/metaboxes.php';
 		require_once AI_PERSONA_PLUGIN_DIR . 'includes/admin/settings.php';
 		require_once AI_PERSONA_PLUGIN_DIR . 'includes/admin/templates.php';
+		require_once AI_PERSONA_PLUGIN_DIR . 'includes/webhooks.php';
 		require_once AI_PERSONA_PLUGIN_DIR . 'includes/admin/analytics.php';
 		require_once AI_PERSONA_PLUGIN_DIR . 'includes/frontend/chat-widget.php';
 		require_once AI_PERSONA_PLUGIN_DIR . 'includes/frontend/design-tokens.php';
@@ -87,6 +88,7 @@ final class Plugin {
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_assets' ) );
 		add_filter( 'ai_persona_resolve_provider', array( $this, 'resolve_provider' ) );
 		add_action( 'ai_persona_response_after_generate', array( $this, 'handle_logging' ), 10, 3 );
+		add_action( 'ai_persona_response_after_generate', 'Ai_Persona\\Webhooks\\dispatch_response_webhooks', 20, 3 );
 		add_action( 'plugins_loaded', array( $this, 'load_textdomain' ) );
 	}
 

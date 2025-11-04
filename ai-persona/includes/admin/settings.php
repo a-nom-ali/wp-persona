@@ -75,6 +75,16 @@ function register_settings() {
 
 	register_setting(
 		'ai_persona',
+		'ai_persona_webhook_endpoints',
+		array(
+			'type'              => 'array',
+			'sanitize_callback' => '\\Ai_Persona\\Webhooks\\sanitize_endpoints_option',
+			'default'           => array(),
+		)
+	);
+
+	register_setting(
+		'ai_persona',
 		'ai_persona_logging_enabled',
 		array(
 			'type'              => 'boolean',
@@ -122,20 +132,35 @@ function register_settings() {
 		'ai_persona_general'
 	);
 
-	add_settings_section(
-		'ai_persona_logging',
-		__( 'Analytics & Logging', 'ai-persona' ),
-		'__return_false',
-		'ai-persona-settings'
-	);
+add_settings_section(
+	'ai_persona_logging',
+	__( 'Analytics & Logging', 'ai-persona' ),
+	'__return_false',
+	'ai-persona-settings'
+);
 
-	add_settings_field(
-		'ai_persona_logging_enabled',
-		__( 'Enable analytics logging', 'ai-persona' ),
-		__NAMESPACE__ . '\render_logging_field',
-		'ai-persona-settings',
-		'ai_persona_logging'
-	);
+add_settings_field(
+	'ai_persona_logging_enabled',
+	__( 'Enable analytics logging', 'ai-persona' ),
+	__NAMESPACE__ . '\render_logging_field',
+	'ai-persona-settings',
+	'ai_persona_logging'
+);
+
+add_settings_section(
+	'ai_persona_webhooks',
+	__( 'Webhooks', 'ai-persona' ),
+	'__return_false',
+	'ai-persona-settings'
+);
+
+add_settings_field(
+	'ai_persona_webhook_endpoints',
+	__( 'Outgoing webhooks', 'ai-persona' ),
+	__NAMESPACE__ . '\render_webhook_endpoints_field',
+	'ai-persona-settings',
+	'ai_persona_webhooks'
+);
 
 	add_settings_section(
 		'ai_persona_permissions',
@@ -191,6 +216,30 @@ function render_authentication_help() {
 		<li><?php esc_html_e( 'Use the bundled scripts or your own REST clients over HTTPS.', 'ai-persona' ); ?></li>
 	</ol>
 	<p class="description"><?php esc_html_e( 'Never commit plaintext credentials to source control.', 'ai-persona' ); ?></p>
+	<?php
+}
+
+/**
+ * Render the webhook endpoints textarea field.
+ */
+function render_webhook_endpoints_field() {
+	$endpoints = get_option( 'ai_persona_webhook_endpoints', array() );
+
+	if ( ! is_array( $endpoints ) ) {
+		$endpoints = array();
+	}
+
+	$value = implode( "\n", array_map( 'esc_url', $endpoints ) );
+	?>
+	<textarea
+		name="ai_persona_webhook_endpoints"
+		rows="5"
+		cols="60"
+		class="large-text"
+	><?php echo esc_textarea( $value ); ?></textarea>
+	<p class="description">
+		<?php esc_html_e( 'One HTTPS URL per line. Each successful persona response will POST a JSON payload to these endpoints.', 'ai-persona' ); ?>
+	</p>
 	<?php
 }
 

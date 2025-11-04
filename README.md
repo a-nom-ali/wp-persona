@@ -313,6 +313,7 @@ Additional helpers:
 - **n8n**: Use an HTTP Request node to call the create/update endpoints with the payload structure shown above, then branch to downstream automations. Store the returned `compiled_prompt` in subsequent nodes (e.g., OpenAI connectors) to ensure prompts stay in sync with personas configured in WordPress.
 - `integrations/n8n-persona-sync.json` creates a persona from structured payloads. Import it into n8n and update the credentials node (`AI Persona Basic Auth`) plus the values in the “Persona Payload” Set node.
 - `integrations/n8n-agent-fetch-persona.json` fetches an existing persona, composes an OpenAI Chat Completions request, and demonstrates how to feed the compiled prompt into an agent-style workflow.
+- **Outgoing Webhooks**: List HTTPS endpoints under **Settings → AI Persona → Webhooks** to receive JSON payloads after every persona response. Payloads can be tailored via the `ai_persona_webhook_payload` filter.
 - **Inbound Webhooks**: Register an `ai_persona_prompt_before_render` filter to inject runtime context from request headers or signed payloads before the prompt is sent to providers. Example:
 
 ```php

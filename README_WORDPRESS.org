@@ -21,6 +21,7 @@ AI Persona helps teams create reusable AI personas inside WordPress.
 * Connect to local Ollama models or remote providers (OpenAI, Anthropic) via the provider abstraction.
 * Import/export personas in JSON for automation workflows.
 * View analytics dashboards (when logging enabled) to understand provider usage and top personas.
+* Trigger JSON webhooks after every persona response to integrate with automation platforms.
 
 == Installation ==
 
