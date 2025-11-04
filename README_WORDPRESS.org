@@ -53,6 +53,7 @@ When enabled, logs are appended to `wp-content/uploads/ai-persona/persona.log`. 
 * Render persona responses as Markdown with sanitization.
 * Expand n8n workflows and publish-ready deployment scripts.
 * Harden block editor compatiblity and persona permissions management.
+* Introduce outgoing webhooks and dynamic persona variables.
 
 = 0.1.0 =
 * Initial release with persona builder, streaming chat widget, provider abstraction, and analytics logging.

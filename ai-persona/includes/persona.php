@@ -126,6 +126,27 @@ function compile_persona_prompt( array $persona, array $context = array() ) {
 
 	$prompt = trim( implode( "\n\n", array_filter( $segments ) ) );
 
+	// Replace dynamic variables.
+	if ( ! empty( $persona['variables'] ) ) {
+		$dynamic_values = array();
+
+		foreach ( $persona['variables'] as $variable ) {
+			if ( empty( $variable['name'] ) ) {
+				continue;
+			}
+
+			$dynamic_values[ $variable['name'] ] = '';
+		}
+
+		$dynamic_values = apply_filters( 'ai_persona_dynamic_values', \Ai_Persona\Variables\get_dynamic_variables( $context ), $context );
+
+		if ( is_array( $dynamic_values ) ) {
+			foreach ( $dynamic_values as $token => $value ) {
+				$prompt = str_replace( '{{' . $token . '}}', $value, $prompt );
+			}
+		}
+	}
+
 	/**
 	 * Filter the compiled persona prompt.
 	 *
