@@ -1,4 +1,6 @@
 .ai-persona-chat {
+	display: inline-block;
+	width: 100%;
 	border: 1px solid var(--ai-persona-color-border, #d7d7d7);
 	border-radius: var(--ai-persona-radius-base, 12px);
 	padding: 1.5rem;
