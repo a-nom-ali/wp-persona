@@ -23,6 +23,7 @@
 	justify-content: space-between;
 	padding-bottom: 0.5rem;
 	border-bottom: 1px solid var(--ai-persona-color-header-border, rgba(15, 23, 42, 0.08));
+	gap: 0.75rem;
 }
 
 .ai-persona-chat__title {
@@ -30,6 +31,42 @@
 	font-size: 1.1rem;
 	font-weight: 600;
 	color: var(--ai-persona-color-text, #0f172a);
+}
+
+.ai-persona-chat__title-group {
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+}
+
+.ai-persona-chat__persona-summary {
+	margin: 0;
+	font-size: 0.85rem;
+	color: rgba(15, 23, 42, 0.7);
+}
+
+.ai-persona-chat__persona-select {
+	min-width: 180px;
+	padding: 0.35rem 0.5rem;
+	border-radius: var(--ai-persona-radius-base, 12px);
+	border: 1px solid var(--ai-persona-color-border, #d7d7d7);
+	background: #fff;
+	font: inherit;
+	color: inherit;
+}
+
+.ai-persona-chat__persona-select:focus {
+	outline: 2px solid var(--ai-persona-outline, rgba(29, 78, 216, 0.35));
+	outline-offset: 2px;
+}
+
+.ai-persona-chat__persona-toolbar {
+	display: flex;
+	justify-content: flex-end;
+	padding-bottom: 0.5rem;
+	margin-bottom: 0.5rem;
+	border-bottom: 1px solid var(--ai-persona-color-header-border, rgba(15, 23, 42, 0.08));
+	gap: 0.5rem;
 }
 
 .ai-persona-chat__messages {

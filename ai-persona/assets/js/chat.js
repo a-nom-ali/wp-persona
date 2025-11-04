@@ -105,27 +105,166 @@
 		}
 		target.innerHTML = html.join('');
 	};
+	const parsePersonaOptions = ( rawValue ) => {
+		if ( ! rawValue ) {
+			return [];
+		}
+		let parsed = rawValue;
+
+		if ( typeof rawValue === 'string' ) {
+			try {
+				parsed = JSON.parse( rawValue );
+			} catch ( error ) {
+				return [];
+			}
+		}
+
+		if ( ! Array.isArray( parsed ) ) {
+			return [];
+		}
+
+		return parsed
+			.map( ( option ) => {
+				if ( typeof option === 'number' ) {
+					return {
+						id: option,
+						label: '',
+					};
+				}
+
+				if ( typeof option === 'string' ) {
+					return {
+						id: parseInt( option, 10 ),
+						label: '',
+					};
+				}
+
+				if ( ! option || typeof option !== 'object' || ! option.id ) {
+					return null;
+				}
+
+				return {
+					id: parseInt( option.id, 10 ),
+					label: option.label ? String( option.label ) : '',
+				};
+			} )
+			.filter( ( option ) => option && ! Number.isNaN( option.id ) && option.id > 0 );
+	};
+	const normalizePersonaOptions = ( options ) => {
+		const normalized = [];
+
+		options.forEach( ( option ) => {
+			if ( ! option || typeof option.id !== 'number' || Number.isNaN( option.id ) || option.id <= 0 ) {
+				return;
+			}
+
+			if ( normalized.some( ( existing ) => existing.id === option.id ) ) {
+				return;
+			}
+
+			const label = option.label && option.label.trim ? option.label.trim() : option.label;
+			normalized.push( {
+				id: option.id,
+				label: label && label.length ? label : `Persona #${ option.id }`,
+			} );
+		} );
+
+		return normalized;
+	};
 	const boot = () => {
 		document.querySelectorAll( rootSelector ).forEach( ( node ) => {
 			if ( ensureBootstrapped( node ) ) {
 				return;
 			}
-			const personaId = parseInt( node.dataset.personaId || '0', 10 );
+			const datasetOptions = node.dataset.personaOptions ? parsePersonaOptions( node.dataset.personaOptions ) : [];
+			let personaOptions = normalizePersonaOptions( datasetOptions );
+			let personaId = parseInt( node.dataset.personaId || '0', 10 );
 			const showHeader = node.dataset.showHeader !== 'false';
-			const headerTitle =
-				node.dataset.headerTitle || 'Chat with persona';
+			const headerTitle = node.dataset.headerTitle || 'Chat with persona';
+
+			if ( Number.isNaN( personaId ) || personaId < 0 ) {
+				personaId = 0;
+			}
+
+			if ( personaId > 0 && ! personaOptions.some( ( option ) => option.id === personaId ) ) {
+				personaOptions = normalizePersonaOptions(
+					personaOptions.concat( [
+						{
+							id: personaId,
+							label: '',
+						},
+					] )
+				);
+			}
+
+			if ( personaId <= 0 && personaOptions.length ) {
+				personaId = personaOptions[0].id;
+			}
+
 			const messages = [];
 			const conversationHistory = [];
+			const personaMetaCache = new Map();
 			const wrapper = document.createElement( 'div' );
 			wrapper.className = 'ai-persona-chat__inner';
+			let header = null;
+			let titleGroup = null;
+			let title = null;
+			let personaSummary = null;
+			let personaSelect = null;
+
+			const buildPersonaSelect = () => {
+				if ( ! personaOptions.length ) {
+					return null;
+				}
+				const select = document.createElement( 'select' );
+				select.className = 'ai-persona-chat__persona-select';
+				select.setAttribute( 'aria-label', 'Select persona' );
+				personaOptions.forEach( ( option ) => {
+					const optionNode = document.createElement( 'option' );
+					optionNode.value = String( option.id );
+					optionNode.textContent = option.label;
+					select.appendChild( optionNode );
+				} );
+				const currentValue = personaId > 0 ? personaId : personaOptions[0].id;
+				select.value = String( currentValue );
+				return select;
+			};
+
 			if ( showHeader ) {
-				const header = document.createElement( 'div' );
+				header = document.createElement( 'div' );
 				header.className = 'ai-persona-chat__header';
-				const title = document.createElement( 'h3' );
+				titleGroup = document.createElement( 'div' );
+				titleGroup.className = 'ai-persona-chat__title-group';
+				title = document.createElement( 'h3' );
 				title.className = 'ai-persona-chat__title';
 				title.textContent = headerTitle;
-				header.appendChild( title );
+				titleGroup.appendChild( title );
+
+				if ( personaOptions.length ) {
+					personaSummary = document.createElement( 'p' );
+					personaSummary.className = 'ai-persona-chat__persona-summary';
+					personaSummary.hidden = true;
+					titleGroup.appendChild( personaSummary );
+				}
+
+				header.appendChild( titleGroup );
+
+				personaSelect = buildPersonaSelect();
+
+				if ( personaSelect ) {
+					header.appendChild( personaSelect );
+				}
+
 				wrapper.appendChild( header );
+			} else if ( personaOptions.length ) {
+				personaSelect = buildPersonaSelect();
+
+				if ( personaSelect ) {
+					const toolbar = document.createElement( 'div' );
+					toolbar.className = 'ai-persona-chat__persona-toolbar';
+					toolbar.appendChild( personaSelect );
+					wrapper.appendChild( toolbar );
+				}
 			}
 			const list = document.createElement( 'div' );
 			list.className = 'ai-persona-chat__messages';
@@ -168,6 +307,108 @@
 				const previous = target.textContent;
 				target.textContent = `${ previous }\n[Error: ${ error }]`;
 			};
+			const personaLabelFor = ( id ) => {
+				const option = personaOptions.find( ( entry ) => entry.id === id );
+				return option ? option.label : '';
+			};
+			const updatePersonaSummary = ( meta ) => {
+				if ( ! personaSummary ) {
+					return;
+				}
+				const summary = meta && meta.persona && meta.persona.role ? meta.persona.role : '';
+				if ( summary ) {
+					personaSummary.textContent = summary;
+					personaSummary.hidden = false;
+				} else {
+					personaSummary.textContent = '';
+					personaSummary.hidden = true;
+				}
+			};
+			const updatePersonaPresentation = ( meta ) => {
+				const label = personaLabelFor( personaId );
+
+				if ( title ) {
+					title.textContent = label ? `${ headerTitle } (${ label })` : headerTitle;
+				}
+
+				if ( textarea ) {
+					textarea.placeholder = label ? `Ask ${ label }...` : 'Ask the persona...';
+				}
+
+				updatePersonaSummary( meta );
+			};
+			const fetchPersonaMeta = ( id ) => {
+				if ( ! id ) {
+					return Promise.resolve( null );
+				}
+
+				if ( personaMetaCache.has( id ) ) {
+					return Promise.resolve( personaMetaCache.get( id ) );
+				}
+
+				const metaUrl = buildRestUrl( `persona/${ id }` );
+
+				return fetch( metaUrl, { credentials: 'include' } )
+					.then( ( response ) => ( response.ok ? response.json() : null ) )
+					.then( ( payload ) => {
+						personaMetaCache.set( id, payload );
+						return payload;
+					} )
+					.catch( () => null );
+			};
+			const resetConversation = () => {
+				conversationHistory.length = 0;
+				messages.length = 0;
+				flushMessages( list, messages );
+			};
+			const setActivePersona = ( nextId, options = {} ) => {
+				const normalizedId = parseInt( nextId, 10 );
+
+				if ( Number.isNaN( normalizedId ) || normalizedId <= 0 ) {
+					return;
+				}
+
+				if ( normalizedId === personaId && ! options.force ) {
+					return;
+				}
+
+				personaId = normalizedId;
+
+				if ( personaSelect && String( personaSelect.value ) !== String( personaId ) ) {
+					personaSelect.value = String( personaId );
+				}
+
+				resetConversation();
+				closeStream();
+
+				const label = personaLabelFor( personaId );
+
+				if ( label ) {
+					appendMessage( 'assistant', `Now chatting with ${ label }.` );
+				}
+
+				updatePersonaPresentation( null );
+
+				fetchPersonaMeta( personaId ).then( ( meta ) => {
+					if ( personaId === normalizedId ) {
+						updatePersonaPresentation( meta );
+					}
+				} );
+			};
+
+			if ( personaSelect ) {
+				personaSelect.addEventListener( 'change', ( event ) => {
+					setActivePersona( event.target.value, { force: true } );
+				} );
+			}
+
+			updatePersonaPresentation( null );
+
+			if ( personaId ) {
+				fetchPersonaMeta( personaId ).then( ( meta ) => {
+					updatePersonaPresentation( meta );
+				} );
+			}
 			const sendPrompt = ( prompt ) => {
 				if ( ! prompt.trim() ) {
 					return;

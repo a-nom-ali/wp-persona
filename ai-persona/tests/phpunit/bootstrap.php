@@ -29,6 +29,7 @@ require_once AI_PERSONA_PLUGIN_DIR . 'includes/providers/class-openai-provider.p
 require_once AI_PERSONA_PLUGIN_DIR . 'includes/providers/class-anthropic-provider.php';
 require_once AI_PERSONA_PLUGIN_DIR . 'includes/persona.php';
 require_once AI_PERSONA_PLUGIN_DIR . 'includes/frontend/design-tokens.php';
+require_once AI_PERSONA_PLUGIN_DIR . 'includes/variables.php';
 
 // -----------------------------------------------------------------------------
 // Core utility shims.
@@ -288,6 +289,135 @@ if ( ! function_exists( 'wp_verify_nonce' ) ) {
 // -----------------------------------------------------------------------------
 // Misc WordPress helpers.
 // -----------------------------------------------------------------------------
+
+global $ai_persona_tests_logged_in;
+$ai_persona_tests_logged_in = false;
+
+global $ai_persona_tests_current_user;
+$ai_persona_tests_current_user = null;
+
+function ai_persona_tests_set_current_user( $user ) {
+    global $ai_persona_tests_logged_in, $ai_persona_tests_current_user;
+    $ai_persona_tests_current_user = $user;
+    $ai_persona_tests_logged_in    = (bool) $user;
+}
+
+if ( ! function_exists( 'is_user_logged_in' ) ) {
+    function is_user_logged_in() {
+        global $ai_persona_tests_logged_in;
+        return (bool) $ai_persona_tests_logged_in;
+    }
+}
+
+if ( ! function_exists( 'wp_get_current_user' ) ) {
+    function wp_get_current_user() {
+        global $ai_persona_tests_current_user;
+        return $ai_persona_tests_current_user;
+    }
+}
+
+global $ai_persona_tests_queried_object;
+$ai_persona_tests_queried_object = null;
+
+function ai_persona_tests_set_queried_object( $object ) {
+    global $ai_persona_tests_queried_object;
+    $ai_persona_tests_queried_object = $object;
+}
+
+if ( ! function_exists( 'get_queried_object' ) ) {
+    function get_queried_object() {
+        global $ai_persona_tests_queried_object;
+        return $ai_persona_tests_queried_object;
+    }
+}
+
+if ( ! function_exists( 'get_post' ) ) {
+    function get_post( $post ) {
+        if ( is_object( $post ) ) {
+            return $post;
+        }
+
+        return null;
+    }
+}
+
+if ( ! function_exists( 'get_the_title' ) ) {
+    function get_the_title( $post ) {
+        if ( is_object( $post ) && isset( $post->post_title ) ) {
+            return $post->post_title;
+        }
+
+        return '';
+    }
+}
+
+if ( ! function_exists( 'get_permalink' ) ) {
+    function get_permalink( $post ) {
+        if ( is_object( $post ) && isset( $post->ID ) ) {
+            return 'http://example.com/?p=' . $post->ID;
+        }
+
+        return 'http://example.com/';
+    }
+}
+
+if ( ! function_exists( 'wp_trim_words' ) ) {
+    function wp_trim_words( $text, $num_words = 55, $more = '…' ) {
+        $words = preg_split( '/\s+/', trim( $text ) );
+
+        if ( count( $words ) <= $num_words ) {
+            return trim( $text );
+        }
+
+        $words = array_slice( $words, 0, $num_words );
+        return implode( ' ', $words ) . $more;
+    }
+}
+
+if ( ! function_exists( 'wp_strip_all_tags' ) ) {
+    function wp_strip_all_tags( $text ) {
+        return strip_tags( $text );
+    }
+}
+
+global $ai_persona_tests_bloginfo;
+$ai_persona_tests_bloginfo = array(
+    'name'        => 'Site Name',
+    'description' => 'Site Description',
+);
+
+function ai_persona_tests_set_bloginfo( $key, $value ) {
+    global $ai_persona_tests_bloginfo;
+    $ai_persona_tests_bloginfo[ $key ] = $value;
+}
+
+if ( ! function_exists( 'get_bloginfo' ) ) {
+    function get_bloginfo( $show = '', $filter = 'raw' ) { // phpcs:ignore
+        global $ai_persona_tests_bloginfo;
+        return isset( $ai_persona_tests_bloginfo[ $show ] ) ? $ai_persona_tests_bloginfo[ $show ] : '';
+    }
+}
+
+if ( ! function_exists( 'home_url' ) ) {
+    function home_url( $path = '', $scheme = null ) { // phpcs:ignore
+        return 'http://example.com/' . ltrim( $path, '/' );
+    }
+}
+
+global $ai_persona_tests_search_query;
+$ai_persona_tests_search_query = '';
+
+function ai_persona_tests_set_search_query( $query ) {
+    global $ai_persona_tests_search_query;
+    $ai_persona_tests_search_query = $query;
+}
+
+if ( ! function_exists( 'get_search_query' ) ) {
+    function get_search_query( $escaped = true ) { // phpcs:ignore
+        global $ai_persona_tests_search_query;
+        return $ai_persona_tests_search_query;
+    }
+}
 
 if ( ! function_exists( 'rest_url' ) ) {
     function rest_url( $path = '' ) {

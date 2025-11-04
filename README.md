@@ -25,7 +25,7 @@ The plugin prioritizes:
 1. **Persona as Prompt**: Each persona is anchored in a comprehensive system prompt, including role, behavior guidelines, constraints, and examples.
 2. **Extensibility First**: Use WordPress hooks/filters to allow modifications to prompts, outputs, integrations, and UI.
 3. **Interoperability**: Personas can be exported in formats like JSON or plain text for use beyond WordPress (e.g., in n8n or other AI platforms).
-4. **Model Agnostic**: Default to OpenAI, but filterable for other providers (e.g., Anthropic, Grok).
+4. **Model Agnostic**: Built-in adapters for Ollama, OpenAI, Anthropic, Google Gemini, and OpenRouter—with filters to wire in additional providers.
 5. **User-Friendly Admin**: Gutenberg blocks and settings pages for easy persona creation/management.
 6. **Security and Performance**: Sanitize inputs, use transients for caching, and avoid unnecessary database tables.
 
@@ -44,6 +44,7 @@ The plugin prioritizes:
   - Constraints: Limits (e.g., "Do not discuss sensitive topics", "Stay in character").
   - Examples: Few-shot examples for consistent outputs.
   - Variables: Support for dynamic placeholders (e.g., `{{user_name}}`, `{{page_content}}`).
+- **Dynamic Variables**: Built-in tokens draw from the current user (`{{current_user.display_name}}`), the page/post being viewed (`{{current_post.title}}`, `{{current_post.url}}`), and now the active `WP_Query` (`{{current_query.post_titles}}`, `{{current_query.search_terms}}`, `{{current_term.name}}`). Use these to tailor prompts to archives, searches, and taxonomy contexts without custom code.
 - **Export/Import**: JSON export of personas for use in external tools; import via file upload or API.
 
 ### Integration and Deployment
@@ -51,6 +52,19 @@ The plugin prioritizes:
   - Real-time streaming responses via OpenAI API.
   - Session management for context retention.
   - Markdown support with sanitized rendering (code blocks, lists, rich text).
+  - Optional persona switcher dropdown so visitors can swap personas without reloading the page.
+
+#### Persona Switcher Configuration
+
+- Toggle **Enable persona switcher** in the chat block inspector and choose which personas should appear. The block stores `{ id, label }` pairs so the front-end dropdown mirrors editor selections.
+- For the `[ai_persona_chat]` shortcode, pass a JSON string via `persona_options`, for example: `[ai_persona_chat id="123" persona_options='[{"id":123,"label":"Support"},{"id":456,"label":"Sales"}]']`.
+- When visitors switch personas the widget clears the conversation, refreshes persona metadata, and updates input placeholders. Filters like `ai_persona_chat_attributes` remain available if you need to populate `persona_options` dynamically.
+#### Provider Configuration
+
+- Choose your provider in **Settings → AI Persona → Provider**. Ollama remains the default local option.
+- OpenAI, Anthropic, Google Gemini, and OpenRouter require API keys; optional base URLs/models let you target regional endpoints or alternative deployments.
+- Filters like `ai_persona_openai_request_args`, `ai_persona_anthropic_request_args`, `ai_persona_gemini_request_args`, and `ai_persona_openrouter_request_args` expose the outbound payloads for advanced tuning (timeouts, additional headers, safety settings).
+- The **Documentation** and **Developer Docs** tabs inside Settings surface quick links to local guides (README, ROADMAP, AGENTS) and highlight key hooks/commands for contributors.
 - **API Endpoint**: REST API route (`/wp-json/ai-persona/v1/generate`) for querying personas externally (e.g., from n8n).
 - **Hooks and Filters**:
   - `ai_persona_resolve_provider`: Override the active provider instance (e.g., inject custom API clients).
@@ -68,6 +82,7 @@ The plugin prioritizes:
   - `ai_persona_template_library`: Inject additional persona templates into the admin template browser.
   - `ai_persona_capability_map`: Adjust the capability mapping for persona CRUD actions and align with custom roles.
   - `ai_persona_ollama_request_args` / `ai_persona_openai_request_args` / `ai_persona_anthropic_request_args`: Adjust outbound API payloads per provider.
+  - `ai_persona_gemini_request_args` / `ai_persona_openrouter_request_args`: Filter request arguments before Google Gemini or OpenRouter calls.
   - `ai_persona_log_entry`: Amend or suppress analytics log entries before they are written.
 
 ### Technical Details
@@ -141,7 +156,7 @@ ai-persona/
 1. Clone or download the plugin to `wp-content/plugins/ai-persona/`.
 2. Run `composer install` for dependencies.
 3. Activate the plugin in WordPress.
-4. Navigate to **Settings > AI Persona** to enter API keys.
+4. Navigate to **Settings → AI Persona** (tabbed into General, Analytics & Logging, Webhooks, Permissions, and Automation Auth) to enter provider credentials and adjust behaviour.
 5. Create a new **AI Persona** post:
    - Fill in prompt sections via metaboxes.
    - Publish and embed via block or API.

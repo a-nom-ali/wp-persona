@@ -14,6 +14,7 @@
 			<file>tests/phpunit/AdminImportTest.php</file>
 			<file>tests/phpunit/ApiPersonaCrudTest.php</file>
 			<file>tests/phpunit/LoggingTest.php</file>
+			<file>tests/phpunit/VariablesTest.php</file>
 		</testsuite>
 	</testsuites>
 </phpunit>

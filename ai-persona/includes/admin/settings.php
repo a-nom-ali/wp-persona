@@ -21,6 +21,68 @@ function register_settings_page() {
 add_action( 'admin_menu', __NAMESPACE__ . '\\register_settings_page' );
 
 /**
+ * Retrieve settings tabs metadata.
+ *
+ * @return array[]
+ */
+function get_settings_tabs() {
+	return array(
+		'general'     => array(
+			'label' => __( 'General', 'ai-persona' ),
+			'page'  => 'ai-persona-settings-general',
+			'supports_save' => true,
+		),
+		'logging'     => array(
+			'label' => __( 'Analytics & Logging', 'ai-persona' ),
+			'page'  => 'ai-persona-settings-logging',
+			'supports_save' => true,
+		),
+		'webhooks'    => array(
+			'label' => __( 'Webhooks', 'ai-persona' ),
+			'page'  => 'ai-persona-settings-webhooks',
+			'supports_save' => true,
+		),
+		'permissions' => array(
+			'label' => __( 'Permissions', 'ai-persona' ),
+			'page'  => 'ai-persona-settings-permissions',
+			'supports_save' => true,
+		),
+		'auth'        => array(
+			'label' => __( 'Automation Auth', 'ai-persona' ),
+			'page'  => 'ai-persona-settings-auth',
+			'supports_save' => false,
+		),
+		'documentation' => array(
+			'label' => __( 'Documentation', 'ai-persona' ),
+			'page'  => 'ai-persona-settings-documentation',
+			'supports_save' => false,
+		),
+		'developer_docs' => array(
+			'label' => __( 'Developer Docs', 'ai-persona' ),
+			'page'  => 'ai-persona-settings-developer-docs',
+			'supports_save' => false,
+		),
+	);
+}
+
+/**
+ * Get the active settings tab slug.
+ *
+ * @return string
+ */
+function get_active_settings_tab() {
+	$tabs    = get_settings_tabs();
+	$default = 'general';
+	$requested = isset( $_GET['tab'] ) ? sanitize_key( wp_unslash( $_GET['tab'] ) ) : $default; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+	if ( ! array_key_exists( $requested, $tabs ) ) {
+		return $default;
+	}
+
+	return $requested;
+}
+
+/**
  * Register plugin settings.
  */
 function register_settings() {
@@ -93,18 +155,20 @@ function register_settings() {
 		)
 	);
 
+	$tabs = get_settings_tabs();
+
 	add_settings_section(
 		'ai_persona_general',
-		__( 'General', 'ai-persona' ),
+		__( 'Provider Configuration', 'ai-persona' ),
 		'__return_false',
-		'ai-persona-settings'
+		$tabs['general']['page']
 	);
 
 	add_settings_field(
 		'ai_persona_provider',
 		__( 'Provider', 'ai-persona' ),
 		__NAMESPACE__ . '\\render_provider_field',
-		'ai-persona-settings',
+		$tabs['general']['page'],
 		'ai_persona_general'
 	);
 
@@ -112,7 +176,7 @@ function register_settings() {
 		'ai_persona_api_key',
 		__( 'API Key', 'ai-persona' ),
 		__NAMESPACE__ . '\\render_api_key_field',
-		'ai-persona-settings',
+		$tabs['general']['page'],
 		'ai_persona_general'
 	);
 
@@ -120,7 +184,7 @@ function register_settings() {
 		'ai_persona_provider_base_url',
 		__( 'Provider Base URL', 'ai-persona' ),
 		__NAMESPACE__ . '\\render_provider_base_url_field',
-		'ai-persona-settings',
+		$tabs['general']['page'],
 		'ai_persona_general'
 	);
 
@@ -128,52 +192,52 @@ function register_settings() {
 		'ai_persona_provider_model',
 		__( 'Model Identifier', 'ai-persona' ),
 		__NAMESPACE__ . '\\render_provider_model_field',
-		'ai-persona-settings',
+		$tabs['general']['page'],
 		'ai_persona_general'
 	);
 
-add_settings_section(
-	'ai_persona_logging',
-	__( 'Analytics & Logging', 'ai-persona' ),
-	'__return_false',
-	'ai-persona-settings'
-);
+	add_settings_section(
+		'ai_persona_logging',
+		__( 'Analytics & Logging', 'ai-persona' ),
+		'__return_false',
+		$tabs['logging']['page']
+	);
 
-add_settings_field(
-	'ai_persona_logging_enabled',
-	__( 'Enable analytics logging', 'ai-persona' ),
-	__NAMESPACE__ . '\render_logging_field',
-	'ai-persona-settings',
-	'ai_persona_logging'
-);
+	add_settings_field(
+		'ai_persona_logging_enabled',
+		__( 'Enable analytics logging', 'ai-persona' ),
+		__NAMESPACE__ . '\render_logging_field',
+		$tabs['logging']['page'],
+		'ai_persona_logging'
+	);
 
-add_settings_section(
-	'ai_persona_webhooks',
-	__( 'Webhooks', 'ai-persona' ),
-	'__return_false',
-	'ai-persona-settings'
-);
+	add_settings_section(
+		'ai_persona_webhooks',
+		__( 'Webhooks', 'ai-persona' ),
+		'__return_false',
+		$tabs['webhooks']['page']
+	);
 
-add_settings_field(
-	'ai_persona_webhook_endpoints',
-	__( 'Outgoing webhooks', 'ai-persona' ),
-	__NAMESPACE__ . '\render_webhook_endpoints_field',
-	'ai-persona-settings',
-	'ai_persona_webhooks'
-);
+	add_settings_field(
+		'ai_persona_webhook_endpoints',
+		__( 'Outgoing webhooks', 'ai-persona' ),
+		__NAMESPACE__ . '\render_webhook_endpoints_field',
+		$tabs['webhooks']['page'],
+		'ai_persona_webhooks'
+	);
 
 	add_settings_section(
 		'ai_persona_permissions',
 		__( 'Permissions', 'ai-persona' ),
 		'__return_false',
-		'ai-persona-settings'
+		$tabs['permissions']['page']
 	);
 
 	add_settings_field(
 		'ai_persona_role_capabilities',
 		__( 'Role access', 'ai-persona' ),
 		__NAMESPACE__ . '\\render_role_capabilities_field',
-		'ai-persona-settings',
+		$tabs['permissions']['page'],
 		'ai_persona_permissions'
 	);
 
@@ -181,7 +245,21 @@ add_settings_field(
 		'ai_persona_auth',
 		__( 'Automation Authentication', 'ai-persona' ),
 		__NAMESPACE__ . '\\render_authentication_help',
-		'ai-persona-settings'
+		$tabs['auth']['page']
+	);
+
+	add_settings_section(
+		'ai_persona_documentation',
+		__( 'Documentation', 'ai-persona' ),
+		__NAMESPACE__ . '\\render_documentation_help',
+		$tabs['documentation']['page']
+	);
+
+	add_settings_section(
+		'ai_persona_developer_docs',
+		__( 'Developer Resources', 'ai-persona' ),
+		__NAMESPACE__ . '\\render_developer_documentation',
+		$tabs['developer_docs']['page']
 	);
 }
 add_action( 'admin_init', __NAMESPACE__ . '\\register_settings' );
@@ -190,14 +268,46 @@ add_action( 'admin_init', __NAMESPACE__ . '\\register_settings' );
  * Render the settings screen.
  */
 function render_settings_page() {
+	$tabs       = get_settings_tabs();
+	$active_tab = get_active_settings_tab();
+
+	if ( ! isset( $tabs[ $active_tab ] ) ) {
+		$active_tab = 'general';
+	}
+
+	$base_url = admin_url( 'options-general.php' );
 	?>
 	<div class="wrap">
 		<h1><?php esc_html_e( 'AI Persona Settings', 'ai-persona' ); ?></h1>
+		<h2 class="nav-tab-wrapper">
+			<?php foreach ( $tabs as $tab_slug => $tab ) : ?>
+				<?php
+				$url   = add_query_arg(
+					array(
+						'page' => 'ai-persona-settings',
+						'tab'  => $tab_slug,
+					),
+					$base_url
+				);
+				$class = 'nav-tab';
+				if ( $tab_slug === $active_tab ) {
+					$class .= ' nav-tab-active';
+				}
+				?>
+				<a href="<?php echo esc_url( $url ); ?>" class="<?php echo esc_attr( $class ); ?>">
+					<?php echo esc_html( $tab['label'] ); ?>
+				</a>
+			<?php endforeach; ?>
+		</h2>
+		<?php settings_errors(); ?>
 		<form action="options.php" method="post">
 			<?php
 			settings_fields( 'ai_persona' );
-			do_settings_sections( 'ai-persona-settings' );
-			submit_button();
+			do_settings_sections( $tabs[ $active_tab ]['page'] );
+
+			if ( ! empty( $tabs[ $active_tab ]['supports_save'] ) ) {
+				submit_button();
+			}
 			?>
 		</form>
 	</div>
@@ -216,6 +326,63 @@ function render_authentication_help() {
 		<li><?php esc_html_e( 'Use the bundled scripts or your own REST clients over HTTPS.', 'ai-persona' ); ?></li>
 	</ol>
 	<p class="description"><?php esc_html_e( 'Never commit plaintext credentials to source control.', 'ai-persona' ); ?></p>
+	<?php
+}
+
+/**
+ * Render links for product documentation.
+ */
+function render_documentation_help() {
+	$docs = array(
+		'README.md'                     => array( 'label' => __( 'Project Overview & Setup Guide', 'ai-persona' ), 'path' => 'README.md' ),
+		'ROADMAP.md'                    => array( 'label' => __( 'Roadmap & Release Milestones', 'ai-persona' ), 'path' => 'ROADMAP.md' ),
+		'AGENTS.md'                     => array( 'label' => __( 'Contributor Guidelines (agents)', 'ai-persona' ), 'path' => 'AGENTS.md' ),
+		'README_WORDPRESS.org'          => array( 'label' => __( 'WordPress.org Readme (public facing)', 'ai-persona' ), 'path' => 'README_WORDPRESS.org' ),
+		'OPEN-QUESTIONS.md'             => array( 'label' => __( 'Open Questions & Answers log', 'ai-persona' ), 'path' => 'OPEN-QUESTIONS.md' ),
+		'CONVERSATION-HISTORY-IMPLEMENTATION.md' => array( 'label' => __( 'Conversation history design notes', 'ai-persona' ), 'path' => 'CONVERSATION-HISTORY-IMPLEMENTATION.md' ),
+	);
+	?>
+	<p><?php esc_html_e( 'Refer to the bundled documentation when onboarding new teammates or agents. Key resources:', 'ai-persona' ); ?></p>
+	<ul>
+		<?php foreach ( $docs as $key => $doc ) : ?>
+			<li>
+				<strong><?php echo esc_html( $doc['label'] ); ?></strong>
+				<?php
+				printf(
+					/* translators: %s: Relative path to the document. */
+					esc_html__( '(see %s)', 'ai-persona' ),
+					esc_html( $doc['path'] )
+				);
+				?>
+			</li>
+		<?php endforeach; ?>
+	</ul>
+	<p class="description">
+		<?php esc_html_e( 'Keep these files up to date whenever behaviour changes so downstream agents stay aligned.', 'ai-persona' ); ?>
+	</p>
+	<?php
+}
+
+/**
+ * Render developer documentation summary.
+ */
+function render_developer_documentation() {
+	?>
+	<p><?php esc_html_e( 'Use these entry points when extending the plugin or integrating providers:', 'ai-persona' ); ?></p>
+	<ul>
+		<li><?php esc_html_e( 'Filters: ai_persona_resolve_provider, ai_persona_request_context, ai_persona_compiled_prompt, ai_persona_dynamic_values.', 'ai-persona' ); ?></li>
+		<li><?php esc_html_e( 'Provider filters: ai_persona_ollama_request_args, ai_persona_openai_request_args, ai_persona_anthropic_request_args, ai_persona_gemini_request_args, ai_persona_openrouter_request_args.', 'ai-persona' ); ?></li>
+		<li><?php esc_html_e( 'Frontend hooks: ai_persona_frontend_settings, ai_persona_chat_html, ai_persona_chat_attributes.', 'ai-persona' ); ?></li>
+	</ul>
+	<p><?php esc_html_e( 'Local development tips:', 'ai-persona' ); ?></p>
+	<ul>
+		<li><?php esc_html_e( 'Run composer install & composer test before submitting changes.', 'ai-persona' ); ?></li>
+		<li><?php esc_html_e( 'Use scripts/persona-export.sh and persona-import.sh for automation flows (requires Application Passwords).', 'ai-persona' ); ?></li>
+		<li><?php esc_html_e( 'Playwright scaffolding lives under tests/playwright/ for future end-to-end coverage.', 'ai-persona' ); ?></li>
+	</ul>
+	<p class="description">
+		<?php esc_html_e( 'Need deeper context? Check AGENTS.md for workflow expectations and TEST-REPORT.md for historical testing notes.', 'ai-persona' ); ?>
+	</p>
 	<?php
 }
 
@@ -337,7 +504,7 @@ add_action( 'add_option_ai_persona_role_capabilities', __NAMESPACE__ . '\\handle
 function render_api_key_field() {
 	$value    = get_option( 'ai_persona_api_key', '' );
 	$provider = get_option( 'ai_persona_provider', 'ollama' );
-	$required = in_array( $provider, array( 'openai', 'anthropic' ), true );
+	$required = in_array( $provider, array( 'openai', 'anthropic', 'gemini', 'openrouter' ), true );
 	?>
 	<input type="text" name="ai_persona_api_key" value="<?php echo esc_attr( $value ); ?>" class="regular-text" autocomplete="off" />
 	<p class="description">
@@ -378,6 +545,8 @@ function render_provider_field() {
 		<option value="ollama" <?php selected( $provider, 'ollama' ); ?>><?php esc_html_e( 'Ollama (local)', 'ai-persona' ); ?></option>
 		<option value="openai" <?php selected( $provider, 'openai' ); ?>><?php esc_html_e( 'OpenAI (remote)', 'ai-persona' ); ?></option>
 		<option value="anthropic" <?php selected( $provider, 'anthropic' ); ?>><?php esc_html_e( 'Anthropic (remote)', 'ai-persona' ); ?></option>
+		<option value="gemini" <?php selected( $provider, 'gemini' ); ?>><?php esc_html_e( 'Google Gemini (remote)', 'ai-persona' ); ?></option>
+		<option value="openrouter" <?php selected( $provider, 'openrouter' ); ?>><?php esc_html_e( 'OpenRouter (remote gateway)', 'ai-persona' ); ?></option>
 	</select>
 	<p class="description">
 		<?php esc_html_e( 'Choose your active AI backend. Remote providers require a valid API key.', 'ai-persona' ); ?>
@@ -396,6 +565,10 @@ function render_provider_base_url_field() {
 		$default = 'https://api.openai.com/v1';
 	} elseif ( 'anthropic' === $provider ) {
 		$default = 'https://api.anthropic.com/v1';
+	} elseif ( 'gemini' === $provider ) {
+		$default = 'https://generativelanguage.googleapis.com/v1beta';
+	} elseif ( 'openrouter' === $provider ) {
+		$default = 'https://openrouter.ai/api/v1';
 	}
 
 	$value = get_option( 'ai_persona_provider_base_url', '' );
@@ -423,6 +596,10 @@ function render_provider_model_field() {
 		$default = 'gpt-4o-mini';
 	} elseif ( 'anthropic' === $provider ) {
 		$default = 'claude-3-haiku-20240307';
+	} elseif ( 'gemini' === $provider ) {
+		$default = 'gemini-1.5-flash';
+	} elseif ( 'openrouter' === $provider ) {
+		$default = 'openai/gpt-4o-mini';
 	}
 
 	$value = get_option( 'ai_persona_provider_model', '' );
@@ -462,7 +639,7 @@ function sanitize_url_option( $value ) {
  * @return string
  */
 function sanitize_provider_option( $value ) {
-	$allowed = array( 'ollama', 'openai', 'anthropic' );
+	$allowed = array( 'ollama', 'openai', 'anthropic', 'gemini', 'openrouter' );
 
 	if ( ! in_array( $value, $allowed, true ) ) {
 		return 'ollama';

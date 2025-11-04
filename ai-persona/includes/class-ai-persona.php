@@ -75,6 +75,8 @@ final class Plugin {
 		require_once AI_PERSONA_PLUGIN_DIR . 'includes/providers/class-ollama-provider.php';
 		require_once AI_PERSONA_PLUGIN_DIR . 'includes/providers/class-openai-provider.php';
 		require_once AI_PERSONA_PLUGIN_DIR . 'includes/providers/class-anthropic-provider.php';
+		require_once AI_PERSONA_PLUGIN_DIR . 'includes/providers/class-gemini-provider.php';
+		require_once AI_PERSONA_PLUGIN_DIR . 'includes/providers/class-openrouter-provider.php';
 	}
 
 	/**
@@ -166,6 +168,18 @@ final class Plugin {
 				$base_url = $base_url ?: 'https://api.anthropic.com/v1';
 
 				return new \Ai_Persona\Providers\Anthropic_Provider( $api_key, $model, $base_url );
+
+			case 'gemini':
+				$model    = $model ?: 'gemini-1.5-flash';
+				$base_url = $base_url ?: 'https://generativelanguage.googleapis.com/v1beta';
+
+				return new \Ai_Persona\Providers\Gemini_Provider( $api_key, $model, $base_url );
+
+			case 'openrouter':
+				$model    = $model ?: 'openai/gpt-4o-mini';
+				$base_url = $base_url ?: 'https://openrouter.ai/api/v1';
+
+				return new \Ai_Persona\Providers\OpenRouter_Provider( $api_key, $model, $base_url );
 
 			case 'ollama':
 			default:

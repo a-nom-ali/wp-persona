@@ -47,6 +47,48 @@ function get_dynamic_variables( $context = array() ) {
 	$variables['site.description'] = get_bloginfo( 'description' );
 	$variables['site.url']         = home_url();
 
+	// Current query insights.
+	global $wp_query;
+
+	if ( $wp_query instanceof \WP_Query ) {
+		$variables['current_query.found_posts'] = (string) $wp_query->found_posts;
+		$variables['current_query.max_num_pages'] = (string) $wp_query->max_num_pages;
+		$variables['current_query.is_search'] = $wp_query->is_search() ? 'true' : 'false';
+		$variables['current_query.search_terms'] = $wp_query->is_search() ? (string) get_search_query( false ) : '';
+		$variables['current_query.is_archive'] = $wp_query->is_archive() ? 'true' : 'false';
+
+		$post_ids = array();
+		$post_titles = array();
+
+		if ( ! empty( $wp_query->posts ) ) {
+			foreach ( $wp_query->posts as $queried_post ) {
+				if ( ! $queried_post instanceof \WP_Post ) {
+					continue;
+				}
+				$post_ids[]    = (string) $queried_post->ID;
+				$post_titles[] = get_the_title( $queried_post );
+			}
+		}
+
+		if ( ! empty( $post_ids ) ) {
+			$variables['current_query.post_ids'] = implode( ', ', $post_ids );
+		}
+
+		if ( ! empty( $post_titles ) ) {
+			$variables['current_query.post_titles'] = implode( ', ', $post_titles );
+		}
+
+		$queried_object = $wp_query->get_queried_object();
+
+		if ( $queried_object instanceof \WP_Term ) {
+			$variables['current_term.id']          = (string) $queried_object->term_id;
+			$variables['current_term.name']        = $queried_object->name;
+			$variables['current_term.slug']        = $queried_object->slug;
+			$variables['current_term.taxonomy']    = $queried_object->taxonomy;
+			$variables['current_term.description'] = wp_trim_words( $queried_object->description, 30 );
+		}
+	}
+
 	/**
 	 * Filter the available dynamic variables before they are exposed in the UI.
 	 *

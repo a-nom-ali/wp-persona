@@ -2,7 +2,7 @@
 	const { registerBlockType } = wp.blocks;
 	const { InspectorControls, PanelColorSettings } = wp.blockEditor || wp.editor;
 	const { useSelect } = wp.data;
-	const { PanelBody, SelectControl, ToggleControl, TextControl, Spinner, RangeControl, __experimentalUnitControl: UnitControl } = wp.components;
+	const { PanelBody, SelectControl, ToggleControl, TextControl, Spinner, RangeControl, CheckboxControl } = wp.components;
 	const { useMemo, Fragment, createElement: el } = wp.element;
 	const { __, sprintf } = wp.i18n;
 
@@ -47,6 +47,10 @@
 				type: 'string',
 				default: '',
 			},
+			personaOptions: {
+				type: 'array',
+				default: [],
+			},
 		},
 		edit: ( props ) => {
 			const { attributes, setAttributes } = props;
@@ -59,7 +63,8 @@
 				textColor = '',
 				borderRadius = 0,
 				maxWidth = '',
-				fontSize = ''
+				fontSize = '',
+				personaOptions: personaOptionsAttr = [],
 			} = attributes;
 
 			const personas = useSelect(
@@ -71,7 +76,7 @@
 				[]
 			);
 
-			const personaOptions = useMemo( () => {
+			const personaSelectOptions = useMemo( () => {
 				const options = [
 					{
 						label: __( 'Select a persona', 'ai-persona' ),
@@ -91,7 +96,100 @@
 				return options;
 			}, [ personas ] );
 
-			const selectedPersona = personaOptions.find( ( option ) => option.value === personaId );
+			const personaSwitchChoices = useMemo( () => {
+				if ( ! Array.isArray( personas ) ) {
+					return [];
+				}
+
+				return personas.map( ( persona ) => ( {
+					id: persona.id,
+					label: persona?.title?.rendered || sprintf( __( 'Persona #%d', 'ai-persona' ), persona.id ),
+				} ) );
+			}, [ personas ] );
+
+			const personaOptionsSelection = useMemo( () => {
+				if ( ! Array.isArray( personaOptionsAttr ) ) {
+					return [];
+				}
+
+				const labelLookup = new Map(
+					personaSwitchChoices.map( ( option ) => [ option.id, option.label ] )
+				);
+
+				return personaOptionsAttr.reduce( ( carry, option ) => {
+					let id = 0;
+					let label = '';
+
+					if ( typeof option === 'number' ) {
+						id = option;
+					} else if ( typeof option === 'string' ) {
+						id = parseInt( option, 10 );
+					} else if ( option && typeof option === 'object' ) {
+						id = option.id || 0;
+						label = option.label || '';
+					}
+
+					id = parseInt( id, 10 );
+
+					if ( ! id || carry.some( ( entry ) => entry.id === id ) ) {
+						return carry;
+					}
+
+					if ( ! label ) {
+						label = labelLookup.get( id ) || sprintf( __( 'Persona #%d', 'ai-persona' ), id );
+					}
+
+					carry.push( {
+						id,
+						label,
+					} );
+
+					return carry;
+				}, [] );
+			}, [ personaOptionsAttr, personaSwitchChoices ] );
+
+			const switcherEnabled = personaOptionsSelection.length > 0;
+
+			const updatePersonaOptionsSelection = ( nextSelection ) => {
+				const sanitized = Array.isArray( nextSelection )
+					? nextSelection
+						.filter( ( option ) => option && option.id )
+						.map( ( option ) => ( {
+							id: option.id,
+							label: option.label || sprintf( __( 'Persona #%d', 'ai-persona' ), option.id ),
+						} ) )
+						.sort( ( a, b ) => a.label.localeCompare( b.label ) )
+					: [];
+
+				setAttributes( { personaOptions: sanitized } );
+			};
+
+			const handleTogglePersonaOption = ( option, isChecked ) => {
+				const current = personaOptionsSelection || [];
+				let next = current.filter( ( entry ) => entry.id !== option.id );
+
+				if ( isChecked ) {
+					next = next.concat( option );
+				}
+
+				updatePersonaOptionsSelection( next );
+			};
+
+			const handleEnableSwitcher = ( value ) => {
+				if ( value ) {
+					const defaultOption =
+						personaSwitchChoices.find( ( option ) => option.id === personaId ) ||
+						personaSwitchChoices[0];
+
+					if ( defaultOption ) {
+						updatePersonaOptionsSelection( [ defaultOption ] );
+					}
+				} else {
+					updatePersonaOptionsSelection( [] );
+				}
+			};
+
+			const selectedPersona = personaSelectOptions.find( ( option ) => option.value === personaId );
 
 			return el(
 				Fragment,
@@ -106,10 +204,40 @@
 							? el( SelectControl, {
 								label: __( 'Persona', 'ai-persona' ),
 								value: personaId,
-								options: personaOptions,
+								options: personaSelectOptions,
 								onChange: ( value ) => setAttributes( { personaId: parseInt( value, 10 ) || 0 } ),
 								help: __( 'Pick which persona powers this chat block.', 'ai-persona' ),
 							} )
+							: el( 'div', { className: 'ai-persona-chat__loading' }, el( Spinner, {} ), el( 'span', {}, __( 'Loading personas…', 'ai-persona' ) ) )
+					),
+					el(
+						PanelBody,
+						{ title: __( 'Persona Switcher', 'ai-persona' ), initialOpen: false },
+						Array.isArray( personas )
+							? el(
+								Fragment,
+								{},
+								el( ToggleControl, {
+									label: __( 'Enable persona switcher', 'ai-persona' ),
+									checked: switcherEnabled,
+									onChange: ( value ) => handleEnableSwitcher( value ),
+									help: __( 'Allow visitors to pick from multiple personas in the chat widget.', 'ai-persona' ),
+								} ),
+								switcherEnabled
+									? (
+										personaSwitchChoices.length > 0
+											? personaSwitchChoices.map( ( option ) =>
+												el( CheckboxControl, {
+													key: option.id,
+													label: option.label,
+													checked: personaOptionsSelection.some( ( entry ) => entry.id === option.id ),
+													onChange: ( isChecked ) => handleTogglePersonaOption( option, isChecked ),
+												} )
+											)
+											: el( 'p', { className: 'components-help-text' }, __( 'Create personas to populate the switcher.', 'ai-persona' ) )
+									)
+									: null
+							)
 							: el( 'div', { className: 'ai-persona-chat__loading' }, el( Spinner, {} ), el( 'span', {}, __( 'Loading personas…', 'ai-persona' ) ) )
 					),
 					el(
@@ -175,19 +303,26 @@
 					)
 				),
 				el(
-				'div',
-				{ className: 'ai-persona-chat-placeholder' },
-				el( 'p', {},
-				selectedPersona?.label
-					? sprintf( __( 'AI Persona Chat (%s)', 'ai-persona' ), selectedPersona.label )
-					: __( 'AI Persona Chat will render on the front end.', 'ai-persona' )
-			),
-				el( 'p', {},
-				showHeader
-					? sprintf( __( 'Header: “%s”', 'ai-persona' ), headerTitle )
-					: __( 'Header hidden', 'ai-persona' )
-			)
-			)
+					'div',
+					{ className: 'ai-persona-chat-placeholder' },
+					el(
+						'p',
+						{},
+						selectedPersona?.label
+							? sprintf( __( 'AI Persona Chat (%s)', 'ai-persona' ), selectedPersona.label )
+							: __( 'AI Persona Chat will render on the front end.', 'ai-persona' )
+					),
+					el(
+						'p',
+						{},
+						showHeader
+							? sprintf( __( 'Header: “%s”', 'ai-persona' ), headerTitle )
+							: __( 'Header hidden', 'ai-persona' )
+					),
+					switcherEnabled
+						? el( 'p', {}, sprintf( __( 'Switcher exposes %d persona(s).', 'ai-persona' ), personaOptionsSelection.length ) )
+						: null
+				)
 			);
 		},
 		save: () => null,

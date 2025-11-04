@@ -1,49 +1,53 @@
 {
-	"$schema": "https://schemas.wp.org/trunk/block.json",
-	"apiVersion": 2,
-	"name": "ai-persona/chat",
-	"title": "AI Persona Chat",
-	"category": "widgets",
-	"icon": "format-chat",
-	"textdomain": "ai-persona",
-	"editorScript": "ai-persona-block-editor",
-	"render": "ai_persona_render_chat_block",
-	"attributes": {
-		"personaId": {
-			"type": "number",
-			"default": 0
-		},
-		"showHeader": {
-			"type": "boolean",
-			"default": true
-		},
-		"headerTitle": {
-			"type": "string",
-			"default": "Chat with persona"
-		},
-		"primaryColor": {
-			"type": "string",
-			"default": ""
-		},
-		"backgroundColor": {
-			"type": "string",
-			"default": ""
-		},
-		"textColor": {
-			"type": "string",
-			"default": ""
-		},
-		"borderRadius": {
-			"type": "number",
-			"default": 0
-		},
-		"maxWidth": {
-			"type": "string",
-			"default": ""
-		},
-		"fontSize": {
-			"type": "string",
-			"default": ""
-		}
-	}
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 2,
+    "name": "ai-persona/chat",
+    "title": "AI Persona Chat",
+    "category": "widgets",
+    "icon": "format-chat",
+    "textdomain": "ai-persona",
+    "editorScript": "ai-persona-block-editor",
+    "render": "ai_persona_render_chat_block",
+    "attributes": {
+        "personaId": {
+            "type": "number",
+            "default": 0
+        },
+        "showHeader": {
+            "type": "boolean",
+            "default": true
+        },
+        "headerTitle": {
+            "type": "string",
+            "default": "Chat with persona"
+        },
+        "primaryColor": {
+            "type": "string",
+            "default": ""
+        },
+        "backgroundColor": {
+            "type": "string",
+            "default": ""
+        },
+        "textColor": {
+            "type": "string",
+            "default": ""
+        },
+        "borderRadius": {
+            "type": "number",
+            "default": 0
+        },
+        "maxWidth": {
+            "type": "string",
+            "default": ""
+        },
+        "fontSize": {
+            "type": "string",
+            "default": ""
+        },
+        "personaOptions": {
+            "type": "array",
+            "default": []
+        }
+    }
 }
