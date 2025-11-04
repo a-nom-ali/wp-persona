@@ -19,7 +19,7 @@ if ( ! defined( 'AI_PERSONA_PLUGIN_FILE' ) ) {
 }
 
 if ( ! defined( 'AI_PERSONA_VERSION' ) ) {
-    define( 'AI_PERSONA_VERSION', '0.1.0-tests' );
+    define( 'AI_PERSONA_VERSION', '1.0.0-tests' );
 }
 
 require_once AI_PERSONA_PLUGIN_DIR . 'includes/providers/interface-provider.php';

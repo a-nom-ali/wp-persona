@@ -359,6 +359,17 @@ Ensure HTTPS is enforced before enabling application passwords to avoid leaking 
 This uses `wp i18n make-pot` to write `languages/ai-persona.pot`. Only commit the `.pot` file to version control; compiled `.po/.mo` files live in release artifacts.
 
 
+## Changelog
+
+### 1.0.0
+- Add analytics dashboard with provider breakdowns and privacy friendly previews.
+- Enable conversation history in the chat widget (SSE + REST fallback).
+- Expand chat block inspector options and styling tokens.
+- Document n8n agent workflows and publish workflow scripts.
+
+### 0.1.0
+- Initial release with persona authoring UI, streaming chat widget, and provider abstraction.
+
 ## Publishing & Deployment
 
 - **Release Packaging**: Run `scripts/publish-wporg.sh` with `SVN_USERNAME`/`SVN_PASSWORD` to sync the plugin to the WordPress.org SVN repository. The script exports a clean build using `.wp-org-publish-ignore`.

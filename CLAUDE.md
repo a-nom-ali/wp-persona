@@ -322,12 +322,12 @@ ai-persona/
 
 ## Versioning
 
-Current version: 0.1.0 (defined in `ai-persona/ai-persona.php`)
+Current version: 1.0.0 (defined in `ai-persona/ai-persona.php`)
 
 Before release:
 1. Update version in `ai-persona.php` header and `AI_PERSONA_VERSION` constant
 2. Update changelogs in `README.md` and `README_WORDPRESS.org`
-3. Commit and tag: `git tag -a v0.1.0 -m "Release 0.1.0"`
+3. Commit and tag: `git tag -a v1.0.0 -m "Release 1.0.0"`
 4. Run `./scripts/publish-wporg.sh` to deploy to WordPress.org SVN
 
 ## MCP Integration

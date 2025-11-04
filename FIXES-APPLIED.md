@@ -1,7 +1,7 @@
 # AI Persona Plugin - Fixes Applied
 
 **Date**: November 4, 2025
-**Plugin Version**: 0.1.0
+**Plugin Version**: 1.0.0
 **Issues Resolved**: 2 (1 JavaScript error, 1 error handling improvement)
 
 ---

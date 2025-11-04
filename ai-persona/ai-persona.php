@@ -3,7 +3,7 @@
  * Plugin Name: AI Persona
  * Plugin URI: https://example.com
  * Description: Provides structured AI persona management via WordPress.
- * Version: 0.1.0
+ * Version: 1.0.0
  * Author: AI Persona Contributors
  * Author URI: https://example.com
  * License: GPLv2 or later
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'AI_PERSONA_VERSION', '0.1.0' );
+define( 'AI_PERSONA_VERSION', '1.0.0' );
 define( 'AI_PERSONA_PLUGIN_FILE', __FILE__ );
 define( 'AI_PERSONA_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 
