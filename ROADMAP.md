@@ -31,7 +31,7 @@
 
 ## 1.0.0 – Release Hardening
 - [x] Implement analytics + logging opt-in.
-- [ ] Finalize localization files and developer docs.
+- [x] Finalize localization files and developer docs.
 - [ ] Achieve test coverage targets across PHP/JS; add Playwright smoke tests.
 - [ ] Publish to WordPress.org with deployment workflow.
 

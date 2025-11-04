@@ -31,7 +31,6 @@ The default Ollama provider runs locally and avoids transmitting content externa
 ---
 
 **Notes**
-
 - Use this section to capture environment or workflow details that agents and contributors should keep in mind between updates.
 - Plugin currently installed on `http://campaign-forge.local` with the plugin directory symlinked to this repository folder.
 - Gutenberg chat block now exposes persona selection and header controls via the inspector; create at least one published persona before adding the block to avoid zero-state UX hiccups.
@@ -46,5 +45,5 @@ The default Ollama provider runs locally and avoids transmitting content externa
 - Automation scripts live under `scripts/` (`persona-export.sh`, `persona-import.sh`) and expect `AI_PERSONA_SITE`, `AI_PERSONA_USER`, and `AI_PERSONA_APP_PASSWORD` env vars.
 - Reference n8n workflow (`integrations/n8n-persona-sync.json`) demonstrates how to chain a manual trigger, payload node, and REST call using basic auth credentials.
 - Analytics opt-in lives under **Settings → AI Persona → Analytics & Logging**; when enabled, inspect `wp-content/uploads/ai-persona/persona.log` or hook `ai_persona_logged_event` for custom telemetry pipelines.
-
+- Localization: run `./scripts/make-pot.sh` after string changes and update `languages/ai-persona.pot`. Playwright scaffolding sits in `tests/playwright/` for future smoke tests.
 - WordPress core tests live under `tests/wpunit/`; configure `WP_PHPUNIT__DIR` (see README) and provide a test database before running `composer test:wpunit`.

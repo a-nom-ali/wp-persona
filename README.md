@@ -332,6 +332,16 @@ curl -u "youruser:application-password" \
 
 Ensure HTTPS is enforced before enabling application passwords to avoid leaking credentials over the network.
 
+## Localization Workflow
+
+- Regenerate the translation template after string updates:
+
+```bash
+./scripts/make-pot.sh
+```
+
+This uses `wp i18n make-pot` to write `languages/ai-persona.pot`. Only commit the `.pot` file to version control; compiled `.po/.mo` files live in release artifacts.
+
 ## Analytics & Logging
 
 - Toggle the analytics/logging opt-in under **Settings → AI Persona → Analytics & Logging**. When enabled, persona generation events are appended to `wp-content/uploads/ai-persona/persona.log` as newline-delimited JSON.
@@ -351,3 +361,8 @@ WP_PHPUNIT__DIR=vendor/wp-phpunit/wp-phpunit \
 ```
 
 > Note: The WordPress test suite requires a MySQL database configured via `wp-tests-config.php`. See the [wp-phpunit documentation](https://github.com/wp-phpunit/wp-phpunit) for setup details.
+
+### Playwright Smoke Tests
+
+- A scaffold lives under `tests/playwright/`. Follow the README there to bootstrap Playwright (`npm init playwright@latest`) and add smoke coverage for persona flows.
+- Keep Playwright specs focused on high-value paths so they remain fast and reliable in CI.
