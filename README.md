@@ -366,6 +366,7 @@ This uses `wp i18n make-pot` to write `languages/ai-persona.pot`. Only commit th
 - Add analytics dashboard with provider breakdowns and privacy friendly previews.
 - Enable conversation history in the chat widget (SSE + REST fallback).
 - Expand chat block inspector options and styling tokens.
+- Render persona responses as Markdown with sanitation.
 - Document n8n agent workflows and publish workflow scripts.
 
 ### 0.1.0

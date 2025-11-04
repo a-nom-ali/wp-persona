@@ -49,6 +49,7 @@ When enabled, logs are appended to `wp-content/uploads/ai-persona/persona.log`. 
 
 = 1.0.0 =
 * Add analytics dashboard, conversation history, and chat widget styling options.
+* Render persona responses as Markdown with sanitization.
 * Expand n8n workflows and publish-ready deployment scripts.
 * Harden block editor compatiblity and persona permissions management.
 
