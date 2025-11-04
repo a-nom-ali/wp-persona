@@ -1,0 +1,13 @@
+docs/
+tests/
+vendor/
+scripts/
+.github/
+README.md
+ROADMAP.md
+OPEN-QUESTIONS.md
+.eslintrc*
+.prettierrc*
+.vscode/
+.DS_Store
+*.map

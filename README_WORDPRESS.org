@@ -1,0 +1,55 @@
+=== AI Persona ===
+Contributors: yourname
+Donate link: https://example.com
+Tags: ai, chatbot, automation, persona
+Requires at least: 6.4
+Tested up to: 6.4
+Stable tag: 0.1.0
+Requires PHP: 7.4
+License: GPLv2 or later
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
+
+Structured AI persona management for WordPress. Build reusable prompts, stream chats, and automate persona workflows.
+
+== Description ==
+
+AI Persona helps teams create reusable AI personas inside WordPress.
+
+* Build structured prompts via the AI Persona custom post type (role, guidelines, constraints, examples).
+* Stream chat responses through the built-in block and shortcode with support for Server-Sent Events.
+* Connect to local Ollama models or remote providers (OpenAI, Anthropic) via the provider abstraction.
+* Import/export personas in JSON for automation workflows.
+* View analytics dashboards (when logging enabled) to understand provider usage and top personas.
+
+== Installation ==
+
+1. Upload the plugin to `/wp-content/plugins/` or install via the Plugins screen.
+2. Activate the plugin through the "Plugins" menu.
+3. Optional: visit **Settings → AI Persona** to configure provider credentials and permissions.
+4. Create a persona under **AI Personas** and embed it using the block or shortcode `[ai_persona_chat]`.
+
+== Frequently Asked Questions ==
+
+= Does the plugin require remote AI providers? =
+
+No. By default the plugin connects to a local Ollama instance (`minimax-m2:cloud`). You can switch to OpenAI or Anthropic in the settings screen.
+
+= Where are analytics logs stored? =
+
+When enabled, logs are appended to `wp-content/uploads/ai-persona/persona.log`. The dashboard truncates user inputs for privacy.
+
+== Screenshots ==
+
+1. Persona builder with structured prompt fields.
+2. Chat widget streaming responses via SSE.
+3. Analytics dashboard highlighting providers and top personas.
+
+== Changelog ==
+
+= 0.1.0 =
+* Initial release with persona builder, streaming chat widget, provider abstraction, and analytics logging.
+
+== Upgrade Notice ==
+
+= 0.1.0 =
+Initial release.

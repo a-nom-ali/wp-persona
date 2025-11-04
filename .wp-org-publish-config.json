@@ -1,0 +1,17 @@
+{
+  "slug": "ai-persona",
+  "exclude": [
+    "tests",
+    "vendor/bin",
+    "vendor/phpunit",
+    "node_modules",
+    "scripts",
+    "integrations",
+    "languages/*.po",
+    "languages/*.mo",
+    "languages/*.pot",
+    ".github",
+    ".git",
+    ".DS_Store"
+  ]
+}

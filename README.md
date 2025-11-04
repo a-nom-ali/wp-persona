@@ -357,6 +357,15 @@ Ensure HTTPS is enforced before enabling application passwords to avoid leaking 
 
 This uses `wp i18n make-pot` to write `languages/ai-persona.pot`. Only commit the `.pot` file to version control; compiled `.po/.mo` files live in release artifacts.
 
+
+## Publishing & Deployment
+
+- **Release Packaging**: Run `scripts/publish-wporg.sh` with `SVN_USERNAME`/`SVN_PASSWORD` to sync the plugin to the WordPress.org SVN repository. The script exports a clean build using `.wp-org-publish-ignore`.
+- **Readme for .org**: Maintain `README_WORDPRESS.org` alongside this document and keep marketing assets (e.g., `assets/banner-772x250.png`) ready for SVN `assets/`.
+- **Versioning Checklist**: Update `ai-persona/ai-persona.php`, `README.md`, `README_WORDPRESS.org`, and `ROADMAP.md` before tagging a release. Commit and tag in Git prior to running the publish script.
+- **Changelog Mirror**: Ensure the changelog section matches in both READMEs so WordPress.org displays accurate notes.
+- **Pre-flight Tests**: Execute `composer test` (and `composer test:wpunit` when configured) before publishing.
+
 ## Analytics & Logging
 
 - Toggle the analytics/logging opt-in under **Settings → AI Persona → Analytics & Logging**. When enabled, persona generation events are appended to `wp-content/uploads/ai-persona/persona.log` as newline-delimited JSON.
