@@ -1,0 +1,237 @@
+{
+  "name": "AI Persona Agent - Fetch Persona",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "4e7e7606-2f37-4c27-8bde-5b19f19a5db5",
+      "name": "Manual Trigger"
+    },
+    {
+      "parameters": {
+        "keepOnlySet": false,
+        "assignments": {
+          "assignments": [
+            {
+              "name": "site",
+              "value": "campaign-forge.local",
+              "type": "string"
+            },
+            {
+              "name": "personaId",
+              "value": 123,
+              "type": "number"
+            },
+            {
+              "name": "user",
+              "value": "admin",
+              "type": "string"
+            },
+            {
+              "name": "password",
+              "value": "app-password",
+              "type": "string"
+            },
+            {
+              "name": "userPrompt",
+              "value": "Draft a welcome email for new subscribers.",
+              "type": "string"
+            },
+            {
+              "name": "openaiKey",
+              "value": "sk-your-openai-key",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        0
+      ],
+      "id": "18d8fdaf-20bb-49e0-9b14-6c025db5f5b5",
+      "name": "Persona Context"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=http://{{$json.site}}/wp-json/ai-persona/v1/persona/{{$json.personaId}}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        440,
+        0
+      ],
+      "id": "0a4c6162-0cf7-4d6e-b1db-66672ef39c53",
+      "name": "Fetch Persona",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "LZlCHBojVZuh04yS",
+          "name": "AI Persona Basic Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "keepOnlySet": false,
+        "assignments": {
+          "assignments": [
+            {
+              "name": "systemPrompt",
+              "value": "={{ $json.compiled_prompt }}",
+              "type": "string"
+            },
+            {
+              "name": "userPrompt",
+              "value": "={{ $node[\"Persona Context\"].json.userPrompt }}",
+              "type": "string"
+            },
+            {
+              "name": "openaiKey",
+              "value": "={{ $node[\"Persona Context\"].json.openaiKey }}",
+              "type": "string"
+            },
+            {
+              "name": "openaiRequest",
+              "value": "={{ ({ model: 'gpt-4o-mini', messages: [ { role: 'system', content: $json.compiled_prompt || '' }, { role: 'user', content: $node[\"Persona Context\"].json.userPrompt || '' } ] }) }}",
+              "type": "object"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        660,
+        0
+      ],
+      "id": "27d73606-4dde-4a62-8f5b-826d948ef4d0",
+      "name": "Compose OpenAI Payload"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.openaiRequest) }}",
+        "options": {
+          "headers": {
+            "Authorization": "={{ `Bearer ${$json.openaiKey}` }}",
+            "Content-Type": "application/json"
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        880,
+        0
+      ],
+      "id": "1cbbef15-cdf6-4e5c-9c7e-2d8f4bfad525",
+      "name": "Call OpenAI"
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "assignments": {
+          "assignments": [
+            {
+              "name": "assistantReply",
+              "value": "={{ $json.choices[0].message.content }}",
+              "type": "string"
+            },
+            {
+              "name": "tokensUsed",
+              "value": "={{ $json.usage.total_tokens }}",
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1100,
+        0
+      ],
+      "id": "b7f8018b-53c2-4e0e-95df-dc6d202d1f02",
+      "name": "Agent Response"
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Persona Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Persona Context": {
+      "main": [
+        [
+          {
+            "node": "Fetch Persona",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Persona": {
+      "main": [
+        [
+          {
+            "node": "Compose OpenAI Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compose OpenAI Payload": {
+      "main": [
+        [
+          {
+            "node": "Call OpenAI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call OpenAI": {
+      "main": [
+        [
+          {
+            "node": "Agent Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "0d4f9d2f-7373-40b3-88a9-5b87d7f97720",
+  "id": "CQGyvLSmDXwVN5w4",
+  "tags": []
+}

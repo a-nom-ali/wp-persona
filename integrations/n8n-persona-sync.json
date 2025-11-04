@@ -3,85 +3,86 @@
   "nodes": [
     {
       "parameters": {},
-      "id": "1",
-      "name": "Manual Trigger",
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
-      "position": [260, 300]
+      "position": [
+        0,
+        0
+      ],
+      "id": "dfd93995-b9c4-4b8d-b663-2c0a4e2fc21f",
+      "name": "When clicking ‘Execute workflow’"
     },
     {
       "parameters": {
-        "keepOnlySet": true,
-        "values": {
-          "string": [
-            { "name": "site", "value": "https://example.com" },
-            { "name": "user", "value": "automation-user" },
-            { "name": "password", "value": "application-password" }
-          ],
-          "json": [
+        "assignments": {
+          "assignments": [
             {
+              "id": "cb2ea092-5ff2-4a6d-9540-973f0c3ead2b",
+              "name": "site",
+              "value": "campaign-forge.local",
+              "type": "string"
+            },
+            {
+              "id": "5edeff1a-bd25-4b14-b028-ada71e4bfc44",
+              "name": "user",
+              "value": "admin",
+              "type": "string"
+            },
+            {
+              "id": "3936fa03-7f99-4d8f-91da-f5e05e0aca73",
+              "name": "password",
+              "value": "KhpW G80c 5ALC XyYx Fp0M p8JA",
+              "type": "string"
+            },
+            {
+              "id": "6bec01ea-21a9-4a78-b387-9da534887cdb",
               "name": "persona",
-              "value": {
-                "title": "Creative Coach",
-                "status": "draft",
-                "persona": {
-                  "role": "You are a creative writing coach.",
-                  "guidelines": [
-                    "Offer constructive feedback",
-                    "Ask clarifying questions"
-                  ],
-                  "constraints": [
-                    "Avoid spoilers"
-                  ],
-                  "variables": [
-                    {
-                      "name": "user_name",
-                      "description": "Name of the author"
-                    }
-                  ],
-                  "examples": [
-                    {
-                      "input": "Help me brainstorm a plot.",
-                      "output": "Let's explore three plot hooks..."
-                    }
-                  ]
-                }
-              }
+              "value": "={{ \n{\n  \"title\": \"Creative Coach\",\n  \"status\": \"draft\",\n  \"persona\": {\n    \"role\": \"You are a creative writing coach.\",\n    \"guidelines\": [\n      \"Offer constructive feedback\",\n      \"Ask clarifying questions\"\n    ],\n    \"constraints\": [\n      \"Avoid spoilers\"\n    ],\n    \"variables\": [\n      {\n        \"name\": \"$json.user_name\",\n        \"description\": \"Name of the author\"\n      }\n    ],\n    \"examples\": [\n      {\n        \"input\": \"Help me brainstorm a plot.\",\n        \"output\": \"Let's explore three plot hooks...\"\n      }\n    ]\n  }\n}\n}}",
+              "type": "object"
             }
           ]
-        }
+        },
+        "options": {}
       },
-      "id": "2",
-      "name": "Persona Payload",
       "type": "n8n-nodes-base.set",
-      "typeVersion": 2,
-      "position": [500, 300]
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "89344364-ae65-405c-ac79-3518c9045c5b",
+      "name": "Persona Payload"
     },
     {
       "parameters": {
-        "authentication": "basicAuth",
-        "requestMethod": "POST",
-        "url": "={{$json['site']}}/wp-json/ai-persona/v1/persona",
-        "jsonParameters": true,
-        "options": {},
+        "method": "POST",
+        "url": "=http://{{ $json.site }}/wp-json/ai-persona/v1/persona",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
         "sendBody": true,
-        "bodyParametersJson": "={{JSON.stringify($json['persona'])}}"
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.persona) }}",
+        "options": {}
       },
-      "id": "3",
-      "name": "Create Persona",
       "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 1,
-      "position": [740, 300],
+      "typeVersion": 4.3,
+      "position": [
+        416,
+        0
+      ],
+      "id": "cb913587-4166-4052-bb2c-9933ba29ebff",
+      "name": "Create Persona",
       "credentials": {
         "httpBasicAuth": {
-          "id": "0",
+          "id": "LZlCHBojVZuh04yS",
           "name": "AI Persona Basic Auth"
         }
       }
     }
   ],
+  "pinData": {},
   "connections": {
-    "Manual Trigger": {
+    "When clicking ‘Execute workflow’": {
       "main": [
         [
           {
@@ -103,5 +104,15 @@
         ]
       ]
     }
-  }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "5d3a0d4b-1372-4451-9fcf-fbb3ac89e7a2",
+  "meta": {
+    "instanceId": "440b090a193318a0a8f25cb6969ccde5241b5c3d5721d9b10cac676c21af9d08"
+  },
+  "id": "o8afOg85FlhTmPKH",
+  "tags": []
 }
