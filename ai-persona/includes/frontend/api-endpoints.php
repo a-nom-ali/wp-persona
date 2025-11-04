@@ -96,17 +96,45 @@ add_action( 'rest_api_init', __NAMESPACE__ . '\\register_routes' );
  * @return bool|\WP_Error
  */
 function permissions_check( WP_REST_Request $request ) {
+	/**
+	 * Allow integrations to short-circuit persona REST permissions.
+	 *
+	 * Return `true` to bypass the default checks or a \WP_Error to block access.
+	 *
+	 * @param bool|\WP_Error|null $override Current override value.
+	 * @param WP_REST_Request     $request  Current request object.
+	 */
+	$override = apply_filters( 'ai_persona_rest_permissions_check', null, $request );
+
+	if ( null !== $override ) {
+		return $override;
+	}
+
 	if ( current_user_can( 'edit_posts' ) ) {
 		return true;
 	}
 
-	$nonce = $request->get_param( '_wpnonce' );
+	$nonce = $request->get_header( 'X-WP-Nonce' );
+
+	if ( empty( $nonce ) ) {
+		$nonce = $request->get_param( '_wpnonce' );
+	}
 
 	if ( ! empty( $nonce ) && wp_verify_nonce( $nonce, 'wp_rest' ) ) {
 		return true;
 	}
 
-	return new \WP_Error( 'forbidden', __( 'You are not allowed to generate persona responses.', 'ai-persona' ), array( 'status' => 403 ) );
+	return new \WP_Error(
+		'ai_persona_rest_auth_required',
+		__( 'Authentication required. Provide a REST nonce or WordPress Application Password to continue.', 'ai-persona' ),
+		array(
+			'status'  => rest_authorization_required_code(),
+			'details' => array(
+				'nonce' => __( 'Pass a nonce generated with wp_create_nonce( "wp_rest" ) via the X-WP-Nonce header or _wpnonce query argument.', 'ai-persona' ),
+				'application_password' => __( 'For server-to-server requests, authenticate with Basic Auth and a WordPress Application Password belonging to a user who can edit posts.', 'ai-persona' ),
+			),
+		)
+	);
 }
 
 /**

@@ -29,12 +29,52 @@ class ApiPermissionsTest extends TestCase {
         $this->assertTrue( $result );
     }
 
+    public function test_permissions_check_allows_nonce_header() {
+        $request = new WP_REST_Request();
+        $request->set_header( 'X-WP-Nonce', 'valid-nonce' );
+
+        $result = Ai_Persona\Frontend\permissions_check( $request );
+
+        $this->assertTrue( $result );
+    }
+
     public function test_permissions_check_rejects_invalid_credentials() {
         $request = new WP_REST_Request( array( '_wpnonce' => 'invalid' ) );
         $result  = Ai_Persona\Frontend\permissions_check( $request );
 
         $this->assertInstanceOf( WP_Error::class, $result );
-        $this->assertSame( 'You are not allowed to generate persona responses.', $result->get_error_message() );
+        $this->assertSame( 'Authentication required. Provide a REST nonce or WordPress Application Password to continue.', $result->get_error_message() );
+
+        $data = $result->get_error_data();
+
+        $this->assertIsArray( $data );
+        $this->assertSame( 401, $data['status'] );
+        $this->assertArrayHasKey( 'details', $data );
+        $this->assertStringContainsString( 'nonce', $data['details']['nonce'] );
+        $this->assertStringContainsString( 'Application Password', $data['details']['application_password'] );
+    }
+
+    public function test_permissions_check_can_be_overridden_by_filter() {
+        add_filter( 'ai_persona_rest_permissions_check', function ( $override, $request ) {
+            return true;
+        }, 10, 2 );
+
+        $request = new WP_REST_Request();
+        $result  = Ai_Persona\Frontend\permissions_check( $request );
+
+        $this->assertTrue( $result );
+    }
+
+    public function test_permissions_check_filter_can_block_access() {
+        add_filter( 'ai_persona_rest_permissions_check', function ( $override, $request ) {
+            return new WP_Error( 'blocked', 'Blocked by filter.' );
+        }, 10, 2 );
+
+        $request = new WP_REST_Request();
+        $result  = Ai_Persona\Frontend\permissions_check( $request );
+
+        $this->assertInstanceOf( WP_Error::class, $result );
+        $this->assertSame( 'Blocked by filter.', $result->get_error_message() );
     }
 
     public function test_handle_persona_export_returns_payload() {

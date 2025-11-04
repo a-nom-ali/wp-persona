@@ -81,6 +81,7 @@ if ( ! class_exists( 'WP_Error' ) ) {
 if ( ! class_exists( 'WP_REST_Request' ) ) {
     class WP_REST_Request {
         private $params = array();
+        private $headers = array();
 
         public function __construct( $params = array() ) {
             $this->params = $params;
@@ -88,6 +89,15 @@ if ( ! class_exists( 'WP_REST_Request' ) ) {
 
         public function get_param( $key ) {
             return isset( $this->params[ $key ] ) ? $this->params[ $key ] : null;
+        }
+
+        public function set_header( $key, $value ) {
+            $this->headers[ strtolower( $key ) ] = $value;
+        }
+
+        public function get_header( $key ) {
+            $key = strtolower( $key );
+            return isset( $this->headers[ $key ] ) ? $this->headers[ $key ] : null;
         }
     }
 }
@@ -288,6 +298,12 @@ if ( ! function_exists( 'rest_url' ) ) {
 if ( ! function_exists( 'wp_json_encode' ) ) {
     function wp_json_encode( $data, $options = 0, $depth = 512 ) { // phpcs:ignore
         return json_encode( $data, $options, $depth );
+    }
+}
+
+if ( ! function_exists( 'rest_authorization_required_code' ) ) {
+    function rest_authorization_required_code() {
+        return 401;
     }
 }
 

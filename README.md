@@ -56,6 +56,7 @@ The plugin prioritizes:
   - `ai_persona_response_after_generate`: React to provider responses (logging, post-processing, analytics).
   - `ai_persona_design_tokens`: Extend the design-token map that styles the chat UI.
   - `ai_persona_chat_attributes`: Tweak shortcode/block attributes prior to render.
+  - `ai_persona_rest_permissions_check`: Override REST authentication handling (return `true` to allow or a `WP_Error` to block).
 
 ### Technical Details
 - **API Integration**: OpenAI Chat Completions (gpt-4o-mini default); filterable for other endpoints.
