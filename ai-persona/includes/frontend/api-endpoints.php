@@ -147,6 +147,7 @@ function handle_generate( WP_REST_Request $request ) {
 	$user_input = (string) $request->get_param( 'prompt' );
 	$persona_id = absint( $request->get_param( 'persona_id' ) );
 	$context    = (array) $request->get_param( 'context' );
+	$messages   = $request->get_param( 'messages' );
 
 	$persona_data = $persona_id ? get_persona_data( $persona_id ) : null;
 
@@ -160,9 +161,28 @@ function handle_generate( WP_REST_Request $request ) {
 	$compiled_prompt = $persona_data ? compile_persona_prompt( $persona_data, array( 'persona_id' => $persona_id ) ) : (string) $request->get_param( 'system_prompt' );
 	$prompt          = $compiled_prompt ?: (string) $request->get_param( 'prompt' );
 
+	// Sanitize and validate message history
+	$conversation_history = array();
+	if ( is_array( $messages ) ) {
+		foreach ( $messages as $message ) {
+			if ( ! is_array( $message ) || empty( $message['role'] ) || empty( $message['content'] ) ) {
+				continue;
+			}
+			$role = sanitize_text_field( $message['role'] );
+			if ( ! in_array( $role, array( 'user', 'assistant' ), true ) ) {
+				continue;
+			}
+			$conversation_history[] = array(
+				'role'    => $role,
+				'content' => sanitize_textarea_field( $message['content'] ),
+			);
+		}
+	}
+
 	$context['persona_id'] = $persona_id ?: null;
 	$context['persona']    = $persona_data ?: null;
 	$context['user_input'] = $user_input;
+	$context['messages']   = $conversation_history;
 
 	$api     = new API();
 	$result  = $api->generate( (string) $prompt, $context );
@@ -186,6 +206,7 @@ function handle_generate( WP_REST_Request $request ) {
 function handle_stream( WP_REST_Request $request ) {
 	$user_input = (string) $request->get_param( 'prompt' );
 	$persona_id = absint( $request->get_param( 'persona_id' ) );
+	$messages   = $request->get_param( 'messages' );
 
 	if ( '' === trim( $user_input ) ) {
 		status_header( 400 );
@@ -212,10 +233,34 @@ function handle_stream( WP_REST_Request $request ) {
 	$compiled_prompt = $persona_data ? compile_persona_prompt( $persona_data, array( 'persona_id' => $persona_id ) ) : (string) $request->get_param( 'system_prompt' );
 	$prompt          = $compiled_prompt ?: $user_input;
 
+	// Parse messages if it's a JSON string (from GET request query param)
+	if ( is_string( $messages ) && ! empty( $messages ) ) {
+		$messages = json_decode( $messages, true );
+	}
+
+	// Sanitize and validate message history
+	$conversation_history = array();
+	if ( is_array( $messages ) ) {
+		foreach ( $messages as $message ) {
+			if ( ! is_array( $message ) || empty( $message['role'] ) || empty( $message['content'] ) ) {
+				continue;
+			}
+			$role = sanitize_text_field( $message['role'] );
+			if ( ! in_array( $role, array( 'user', 'assistant' ), true ) ) {
+				continue;
+			}
+			$conversation_history[] = array(
+				'role'    => $role,
+				'content' => sanitize_textarea_field( $message['content'] ),
+			);
+		}
+	}
+
 	$context = array(
 		'persona_id' => $persona_id ?: null,
 		'persona'    => $persona_data,
 		'user_input' => $user_input,
+		'messages'   => $conversation_history,
 	);
 
 	start_stream();
@@ -223,11 +268,12 @@ function handle_stream( WP_REST_Request $request ) {
 	$api = new API();
 	$aggregate = '';
 	$complete_sent = false;
+	$has_errors = false;
 
 	$api->stream(
 		$prompt,
 		$context,
-		function ( $event ) use ( &$aggregate, &$complete_sent ) {
+		function ( $event ) use ( &$aggregate, &$complete_sent, &$has_errors ) {
 			if ( ! is_array( $event ) || empty( $event['type'] ) ) {
 				return;
 			}
@@ -238,7 +284,8 @@ function handle_stream( WP_REST_Request $request ) {
 					emit_sse( 'message', isset( $event['data'] ) ? (string) $event['data'] : '' );
 					break;
 				case 'error':
-					emit_sse( 'error', isset( $event['data'] ) ? (string) $event['data'] : '' );
+					$has_errors = true;
+					emit_sse( 'error', isset( $event['data'] ) ? (string) $event['data'] : 'Unknown error occurred' );
 					break;
 				case 'done':
 					if ( ! $complete_sent ) {
@@ -251,7 +298,12 @@ function handle_stream( WP_REST_Request $request ) {
 	);
 
 	if ( ! $complete_sent ) {
-		emit_sse( 'complete', $aggregate );
+		if ( $has_errors && empty( $aggregate ) ) {
+			// Error occurred but complete wasn't sent - the error event should have been emitted above
+			emit_sse( 'complete', '' );
+		} else {
+			emit_sse( 'complete', $aggregate );
+		}
 	}
 
 	end_stream();

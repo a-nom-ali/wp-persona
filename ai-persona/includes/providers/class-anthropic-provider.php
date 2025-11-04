@@ -57,12 +57,40 @@ class Anthropic_Provider implements Provider_Interface {
             );
         }
 
-        $messages = array(
-            array(
+        // Build messages array (Anthropic uses separate system parameter)
+        $messages = array();
+
+        // Add conversation history if provided
+        if ( ! empty( $context['messages'] ) && is_array( $context['messages'] ) ) {
+            $messages = $context['messages'];
+        }
+
+        // Add current user input
+        if ( ! empty( $context['user_input'] ) ) {
+            $messages[] = array(
+                'role'    => 'user',
+                'content' => (string) $context['user_input'],
+            );
+        }
+
+        // If no messages, add the prompt as user message (fallback)
+        if ( empty( $messages ) ) {
+            $messages[] = array(
                 'role'    => 'user',
                 'content' => $prompt,
-            ),
+            );
+        }
+
+        $request_body = array(
+            'model'      => $this->model,
+            'max_tokens' => 1024,
+            'messages'   => $messages,
         );
+
+        // Anthropic uses a separate system parameter (not in messages)
+        if ( ! empty( $prompt ) && ! empty( $context['user_input'] ) ) {
+            $request_body['system'] = $prompt;
+        }
 
         $request_args = array(
             'headers' => array(
@@ -70,13 +98,7 @@ class Anthropic_Provider implements Provider_Interface {
                 'x-api-key'         => $this->api_key,
                 'anthropic-version' => '2023-06-01',
             ),
-            'body'    => wp_json_encode(
-                array(
-                    'model'      => $this->model,
-                    'max_tokens' => 1024,
-                    'messages'   => $messages,
-                )
-            ),
+            'body'    => wp_json_encode( $request_body ),
             'timeout' => 20,
         );
 

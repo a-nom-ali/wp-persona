@@ -57,13 +57,23 @@ class OpenAI_Provider implements Provider_Interface {
             );
         }
 
-        $messages = array(
-            array(
+        // Build messages array with system prompt and user input
+        $messages = array();
+
+        // Add system message (persona prompt)
+        if ( ! empty( $prompt ) ) {
+            $messages[] = array(
                 'role'    => 'system',
                 'content' => $prompt,
-            ),
-        );
+            );
+        }
 
+        // Add conversation history if provided
+        if ( ! empty( $context['messages'] ) && is_array( $context['messages'] ) ) {
+            $messages = array_merge( $messages, $context['messages'] );
+        }
+
+        // Add current user input
         if ( ! empty( $context['user_input'] ) ) {
             $messages[] = array(
                 'role'    => 'user',

@@ -50,6 +50,7 @@
 			const headerTitle =
 				node.dataset.headerTitle || 'Chat with persona';
 			const messages = [];
+			const conversationHistory = [];
 
 			const wrapper = document.createElement( 'div' );
 			wrapper.className = 'ai-persona-chat__inner';
@@ -129,6 +130,12 @@
 				appendMessage( 'user', prompt );
 				const assistantMessage = appendMessage( 'assistant', '' );
 
+				// Add user message to conversation history
+				conversationHistory.push( {
+					role: 'user',
+					content: prompt,
+				} );
+
 				setLoading( true );
 
 				const params = {
@@ -136,6 +143,12 @@
 					persona_id: personaId || undefined,
 					_wpnonce: settings.nonce || undefined,
 				};
+
+				// Add conversation history to params (for GET request, we'll send via POST body for streaming)
+				if ( conversationHistory.length > 1 ) {
+					// Exclude the current user message we just added
+					params.messages = JSON.stringify( conversationHistory.slice( 0, -1 ) );
+				}
 
 				if ( 'EventSource' in window ) {
 					const streamUrl = buildRestUrl( 'stream', params );
@@ -151,16 +164,34 @@
 					activeStream.addEventListener( 'complete', ( event ) => {
 						aggregate = event.data || aggregate;
 						assistantMessage.textContent = aggregate;
+
+						// Add assistant response to conversation history
+						if ( aggregate ) {
+							conversationHistory.push( {
+								role: 'assistant',
+								content: aggregate,
+							} );
+						}
+
 						setLoading( false );
 						closeStream();
 					} );
 
 					activeStream.addEventListener( 'error', ( event ) => {
-						const message = event && event.data ? event.data : 'Stream interrupted';
+						const message = event && event.data ? event.data : 'Connection error or stream interrupted. Please check provider configuration.';
 						handleError( assistantMessage, message );
 						setLoading( false );
 						closeStream();
 					} );
+
+					activeStream.onerror = ( event ) => {
+						// EventSource built-in error handler
+						if ( aggregate.length === 0 ) {
+							handleError( assistantMessage, 'Failed to connect to stream. Please check if the AI provider is configured correctly.' );
+						}
+						setLoading( false );
+						closeStream();
+					};
 
 					return;
 				}
@@ -168,22 +199,36 @@
 				// Fallback: fetch entire response.
 				const fallbackUrl = buildRestUrl( 'generate' );
 
+				// Prepare request body with conversation history
+				const requestBody = {
+					prompt,
+					context: { persona_id: personaId },
+					_wpnonce: settings.nonce || undefined,
+				};
+
+				// Add conversation history (excluding current user message)
+				if ( conversationHistory.length > 1 ) {
+					requestBody.messages = conversationHistory.slice( 0, -1 );
+				}
+
 				fetch( fallbackUrl, {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
 					},
-					body: JSON.stringify( {
-						prompt,
-						context: { persona_id: personaId },
-						_wpnonce: settings.nonce || undefined,
-					} ),
+					body: JSON.stringify( requestBody ),
 					credentials: 'include',
 				} )
 					.then( ( response ) => response.json() )
 					.then( ( payload ) => {
 						if ( payload && payload.output ) {
 							assistantMessage.textContent = payload.output;
+
+							// Add assistant response to conversation history
+							conversationHistory.push( {
+								role: 'assistant',
+								content: payload.output,
+							} );
 						} else if ( payload && payload.error ) {
 							handleError( assistantMessage, payload.error );
 						} else {

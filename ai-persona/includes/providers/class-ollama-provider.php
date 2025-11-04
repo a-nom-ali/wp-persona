@@ -40,15 +40,39 @@ class Ollama_Provider implements Provider_Interface {
 	 * {@inheritdoc}
 	 */
 	public function generate( $prompt, array $context = array() ) {
+		// Build messages array with system prompt and user input
+		$messages = array();
+
+		// Add system message (persona prompt)
+		if ( ! empty( $prompt ) ) {
+			$messages[] = array(
+				'role'    => 'system',
+				'content' => $prompt,
+			);
+		}
+
+		// Add conversation history if provided
+		if ( ! empty( $context['messages'] ) && is_array( $context['messages'] ) ) {
+			$messages = array_merge( $messages, $context['messages'] );
+		}
+
+		// Add current user input
+		if ( ! empty( $context['user_input'] ) ) {
+			$messages[] = array(
+				'role'    => 'user',
+				'content' => (string) $context['user_input'],
+			);
+		}
+
 		$request_args = array(
 			'headers' => array(
 				'Content-Type' => 'application/json',
 			),
 			'body'    => wp_json_encode(
 				array(
-					'model'  => $this->model,
-					'prompt' => $prompt,
-					'stream' => false,
+					'model'    => $this->model,
+					'messages' => $messages,
+					'stream'   => false,
 				)
 			),
 			'timeout' => 15,
@@ -62,7 +86,7 @@ class Ollama_Provider implements Provider_Interface {
 		 */
 		$request_args = apply_filters( 'ai_persona_ollama_request_args', $request_args, $context );
 
-		$response = wp_remote_post( "{$this->base_url}/api/generate", $request_args );
+		$response = wp_remote_post( "{$this->base_url}/api/chat", $request_args );
 
 		if ( is_wp_error( $response ) ) {
 			return array(
@@ -82,8 +106,13 @@ class Ollama_Provider implements Provider_Interface {
 			);
 		}
 
+		$output = '';
+		if ( isset( $data['message']['content'] ) ) {
+			$output = (string) $data['message']['content'];
+		}
+
 		return array(
-			'output'   => isset( $data['response'] ) ? (string) $data['response'] : '',
+			'output'   => $output,
 			'provider' => 'ollama',
 			'raw'      => $data,
 		);
@@ -114,13 +143,37 @@ class Ollama_Provider implements Provider_Interface {
 			return;
 		}
 
+		// Build messages array with system prompt and user input
+		$messages = array();
+
+		// Add system message (persona prompt)
+		if ( ! empty( $prompt ) ) {
+			$messages[] = array(
+				'role'    => 'system',
+				'content' => $prompt,
+			);
+		}
+
+		// Add conversation history if provided
+		if ( ! empty( $context['messages'] ) && is_array( $context['messages'] ) ) {
+			$messages = array_merge( $messages, $context['messages'] );
+		}
+
+		// Add current user input
+		if ( ! empty( $context['user_input'] ) ) {
+			$messages[] = array(
+				'role'    => 'user',
+				'content' => (string) $context['user_input'],
+			);
+		}
+
 		$payload = array(
-			'model'  => $this->model,
-			'prompt' => $prompt,
-			'stream' => true,
+			'model'    => $this->model,
+			'messages' => $messages,
+			'stream'   => true,
 		);
 
-		$ch = curl_init( "{$this->base_url}/api/generate" );
+		$ch = curl_init( "{$this->base_url}/api/chat" );
 		$buffer = '';
 
 		curl_setopt_array(
@@ -158,11 +211,12 @@ class Ollama_Provider implements Provider_Interface {
 							continue;
 						}
 
-						if ( isset( $data['response'] ) ) {
+						// Handle /api/chat response format
+						if ( isset( $data['message']['content'] ) ) {
 							$emit(
 								array(
 									'type' => 'token',
-									'data' => (string) $data['response'],
+									'data' => (string) $data['message']['content'],
 									'raw'  => $data,
 								)
 							);
