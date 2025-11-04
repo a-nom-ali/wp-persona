@@ -50,6 +50,7 @@ The plugin prioritizes:
 - **Chatbot Mode**: Gutenberg block (`ai_persona_chat`) to embed a floating chat widget powered by the persona.
   - Real-time streaming responses via OpenAI API.
   - Session management for context retention.
+  - Markdown support with sanitized rendering (code blocks, lists, rich text).
 - **API Endpoint**: REST API route (`/wp-json/ai-persona/v1/generate`) for querying personas externally (e.g., from n8n).
 - **Hooks and Filters**:
   - `ai_persona_resolve_provider`: Override the active provider instance (e.g., inject custom API clients).

@@ -5,6 +5,7 @@
 
 	const settings = window.AiPersonaSettings || {};
 
+
 	const ensureBootstrapped = ( node ) => {
 		if ( node.dataset.bootstrapped ) {
 			return true;
@@ -37,6 +38,23 @@
 	const flushMessages = ( container, messages ) => {
 		container.innerHTML = '';
 		messages.forEach( ( message ) => container.appendChild( message ) );
+	};
+
+	const renderMarkdown = ( target, markdown = '' ) => {
+		const hasMarked = 'object' === typeof window && window.marked && typeof window.marked.parse === 'function';
+		const hasDOMPurify = 'object' === typeof window && window.DOMPurify && typeof window.DOMPurify.sanitize === 'function';
+
+		if ( hasMarked && hasDOMPurify ) {
+			try {
+				const raw = window.marked.parse( markdown ?? '' );
+				target.innerHTML = window.DOMPurify.sanitize( raw, { USE_PROFILES: { html: true } } );
+				return;
+			} catch ( error ) {
+				// Fallback to text content below.
+			}
+		}
+
+		target.textContent = markdown ?? '';
 	};
 
 	const boot = () => {
@@ -158,12 +176,12 @@
 
 					activeStream.addEventListener( 'message', ( event ) => {
 						aggregate += event.data;
-						assistantMessage.textContent = aggregate;
+						renderMarkdown( assistantMessage, aggregate );
 					} );
 
 					activeStream.addEventListener( 'complete', ( event ) => {
 						aggregate = event.data || aggregate;
-						assistantMessage.textContent = aggregate;
+						renderMarkdown( assistantMessage, aggregate );
 
 						// Add assistant response to conversation history
 						if ( aggregate ) {
@@ -222,7 +240,7 @@
 					.then( ( response ) => response.json() )
 					.then( ( payload ) => {
 						if ( payload && payload.output ) {
-							assistantMessage.textContent = payload.output;
+							renderMarkdown( assistantMessage, payload.output );
 
 							// Add assistant response to conversation history
 							conversationHistory.push( {

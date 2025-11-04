@@ -17,6 +17,7 @@ AI Persona helps teams create reusable AI personas inside WordPress.
 
 * Build structured prompts via the AI Persona custom post type (role, guidelines, constraints, examples).
 * Stream chat responses through the built-in block and shortcode with support for Server-Sent Events.
+* Render Markdown (including code blocks and lists) safely in chat replies.
 * Connect to local Ollama models or remote providers (OpenAI, Anthropic) via the provider abstraction.
 * Import/export personas in JSON for automation workflows.
 * View analytics dashboards (when logging enabled) to understand provider usage and top personas.
