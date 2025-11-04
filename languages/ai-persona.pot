@@ -1,0 +1,310 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: AI Persona 0.1.0\n"
+"POT-Creation-Date: 2024-11-03 00:00+0000\n"
+"PO-Revision-Date: 2024-11-03 00:00+0000\n"
+"Last-Translator: AI Persona <dev@example.com>\n"
+"Language-Team: AI Persona <dev@example.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: hand-crafted\n"
+
+#: ai-persona/includes/class-ai-persona.php:94
+msgid "AI Personas"
+msgstr ""
+
+#: ai-persona/includes/class-ai-persona.php:95
+msgid "AI Persona"
+msgstr ""
+
+#: ai-persona/includes/admin/metaboxes.php:18
+msgid "Persona Structure"
+msgstr ""
+
+#: ai-persona/includes/admin/settings.php:14
+msgid "AI Persona Settings"
+msgstr ""
+
+#: ai-persona/includes/admin/settings.php:15
+msgid "AI Persona"
+msgstr ""
+
+#: ai-persona/includes/admin/settings.php:78
+msgid "General"
+msgstr ""
+
+#: ai-persona/includes/admin/settings.php:85
+msgid "Provider"
+msgstr ""
+
+#: ai-persona/includes/admin/settings.php:93
+msgid "API Key"
+msgstr ""
+
+#: ai-persona/includes/admin/settings.php:101
+msgid "Provider Base URL"
+msgstr ""
+
+#: ai-persona/includes/admin/settings.php:109
+msgid "Model Identifier"
+msgstr ""
+
+#: ai-persona/includes/admin/settings.php:116
+msgid "Analytics & Logging"
+msgstr ""
+
+#: ai-persona/includes/admin/settings.php:125
+msgid "Enable analytics logging"
+msgstr ""
+
+#: ai-persona/includes/admin/settings.php:132
+msgid "Automation Authentication"
+msgstr ""
+
+#: ai-persona/includes/admin/settings.php:139
+msgid "Automations can authenticate with WordPress cookies + nonces or Application Passwords."
+msgstr ""
+
+#: ai-persona/includes/admin/settings.php:143
+msgid "Create an Application Password for the automation user via %s."
+msgstr ""
+
+#: ai-persona/includes/admin/settings.php:144
+msgid "Users → Profile"
+msgstr ""
+
+#: ai-persona/includes/admin/settings.php:145
+msgid "Store the username/password securely (environment variables, secrets manager)."
+msgstr ""
+
+#: ai-persona/includes/admin/settings.php:146
+msgid "Use the bundled scripts or your own REST clients over HTTPS."
+msgstr ""
+
+#: ai-persona/includes/admin/settings.php:147
+msgid "Never commit plaintext credentials to source control."
+msgstr ""
+
+#: ai-persona/includes/admin/settings.php:161
+msgid "Required. Keep this secret and rotate regularly."
+msgstr ""
+
+#: ai-persona/includes/admin/settings.php:165
+msgid "Optional for local Ollama deployments."
+msgstr ""
+
+#: ai-persona/includes/admin/settings.php:179
+msgid "Ollama (local)"
+msgstr ""
+
+#: ai-persona/includes/admin/settings.php:180
+msgid "OpenAI (remote)"
+msgstr ""
+
+#: ai-persona/includes/admin/settings.php:181
+msgid "Anthropic (remote)"
+msgstr ""
+
+#: ai-persona/includes/admin/settings.php:183
+msgid "Choose your active AI backend. Remote providers require a valid API key."
+msgstr ""
+
+#: ai-persona/includes/admin/settings.php:206
+msgid "Optional override. Leave blank to use the provider default (%s)."
+msgstr ""
+
+#: ai-persona/includes/admin/settings.php:231
+msgid "Model identifier recognised by the selected provider (default %s)."
+msgstr ""
+
+#: ai-persona/includes/admin/settings.php:248
+msgid "Capture persona generation events to a log file."
+msgstr ""
+
+#: ai-persona/includes/admin/settings.php:251
+msgid "Logs are stored under wp-content/uploads/ai-persona/persona.log when enabled. Disable in production if analytics are not required."
+msgstr ""
+
+#: ai-persona/assets/js/admin.js:125
+msgid "Role is required to anchor the persona."
+msgstr ""
+
+#: ai-persona/assets/js/admin.js:129
+msgid "Add at least one guideline so the persona has behavioural direction."
+msgstr ""
+
+#: ai-persona/assets/js/admin.js:139
+msgid "Role"
+msgstr ""
+
+#: ai-persona/assets/js/admin.js:143
+msgid "Guidelines"
+msgstr ""
+
+#: ai-persona/assets/js/admin.js:147
+msgid "Constraints"
+msgstr ""
+
+#: ai-persona/assets/js/admin.js:151
+msgid "Variables"
+msgstr ""
+
+#: ai-persona/assets/js/admin.js:151
+msgid "Description pending"
+msgstr ""
+
+#: ai-persona/assets/js/admin.js:155
+msgid "Examples"
+msgstr ""
+
+#: ai-persona/assets/js/admin.js:156
+msgid "User"
+msgstr ""
+
+#: ai-persona/assets/js/admin.js:156
+msgid "n/a"
+msgstr ""
+
+#: ai-persona/assets/js/admin.js:157
+msgid "Assistant"
+msgstr ""
+
+#: ai-persona/assets/js/admin.js:251
+msgid "Persona role and scope"
+msgstr ""
+
+#: ai-persona/assets/js/admin.js:254
+msgid "Explain who the persona is, their expertise, and how they should think."
+msgstr ""
+
+#: ai-persona/assets/js/admin.js:274
+msgid "Guideline"
+msgstr ""
+
+#: ai-persona/assets/js/admin.js:282
+msgid "Remove"
+msgstr ""
+
+#: ai-persona/assets/js/admin.js:285
+msgid "Add guideline"
+msgstr ""
+
+#: ai-persona/assets/js/admin.js:300
+msgid "Constraint"
+msgstr ""
+
+#: ai-persona/assets/js/admin.js:311
+msgid "Add constraint"
+msgstr ""
+
+#: ai-persona/assets/js/admin.js:327
+msgid "Token"
+msgstr ""
+
+#: ai-persona/assets/js/admin.js:330
+msgid "Use lowercase with underscores (example: customer_name)."
+msgstr ""
+
+#: ai-persona/assets/js/admin.js:333
+msgid "Description"
+msgstr ""
+
+#: ai-persona/assets/js/admin.js:344
+msgid "Add variable"
+msgstr ""
+
+#: ai-persona/assets/js/admin.js:359
+msgid "User input"
+msgstr ""
+
+#: ai-persona/assets/js/admin.js:365
+msgid "Assistant reply"
+msgstr ""
+
+#: ai-persona/assets/js/admin.js:374
+msgid "Remove example"
+msgstr ""
+
+#: ai-persona/assets/js/admin.js:383
+msgid "Prompt preview"
+msgstr ""
+
+#: ai-persona/assets/js/admin.js:392
+msgid "Complete the sections above to preview the compiled persona prompt."
+msgstr ""
+
+#: ai-persona/includes/frontend/chat-widget.php:28
+#: ai-persona/includes/frontend/chat-widget.php:70
+msgid "Chat with persona"
+msgstr ""
+
+#: ai-persona/includes/frontend/api-endpoints.php:109
+msgid "You are not allowed to generate persona responses."
+msgstr ""
+
+#: ai-persona/includes/frontend/api-endpoints.php:127
+#: ai-persona/includes/frontend/api-endpoints.php:178
+#: ai-persona/includes/frontend/api-endpoints.php:252
+#: ai-persona/includes/frontend/api-endpoints.php:332
+#: ai-persona/includes/frontend/api-endpoints.php:401
+#: ai-persona/includes/frontend/api-endpoints.php:429
+msgid "Persona not found."
+msgstr ""
+
+#: ai-persona/includes/frontend/api-endpoints.php:166
+msgid "Prompt is required."
+msgstr ""
+
+#: ai-persona/includes/frontend/api-endpoints.php:243
+msgid "Persona ID is required."
+msgstr ""
+
+#: ai-persona/includes/frontend/api-endpoints.php:281
+msgid "Persona title is required."
+msgstr ""
+
+#: ai-persona/includes/frontend/api-endpoints.php:292
+#: ai-persona/includes/frontend/api-endpoints.php:378
+msgid "Persona role is required."
+msgstr ""
+
+#: ai-persona/includes/frontend/api-endpoints.php:344
+msgid "Persona title cannot be empty."
+msgstr ""
+
+#: ai-persona/includes/frontend/api-endpoints.php:356
+msgid "Invalid status supplied."
+msgstr ""
+
+#: ai-persona/includes/frontend/api-endpoints.php:410
+msgid "Failed to delete persona."
+msgstr ""
+
+#: ai-persona/includes/frontend/api-endpoints.php:437
+msgid "%s (Copy)"
+msgstr ""
+
+#: ai-persona/includes/providers/class-ollama-provider.php:81
+msgid "Invalid response from Ollama."
+msgstr ""
+
+#: ai-persona/includes/providers/class-ollama-provider.php:104
+msgid "cURL is required for streaming responses."
+msgstr ""
+
+#: ai-persona/includes/providers/class-openai-provider.php:56
+msgid "Missing OpenAI API key."
+msgstr ""
+
+#: ai-persona/includes/providers/class-openai-provider.php:114
+msgid "Invalid response from OpenAI."
+msgstr ""
+
+#: ai-persona/includes/providers/class-anthropic-provider.php:56
+msgid "Missing Anthropic API key."
+msgstr ""
+
+#: ai-persona/includes/providers/class-anthropic-provider.php:108
+msgid "Invalid response from Anthropic."
+msgstr ""

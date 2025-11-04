@@ -84,6 +84,7 @@ final class Plugin {
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_assets' ) );
 		add_filter( 'ai_persona_resolve_provider', array( $this, 'resolve_provider' ) );
 		add_action( 'ai_persona_response_after_generate', array( $this, 'handle_logging' ), 10, 3 );
+		add_action( 'plugins_loaded', array( $this, 'load_textdomain' ) );
 	}
 
 	/**
@@ -171,6 +172,10 @@ final class Plugin {
 			AI_PERSONA_VERSION,
 			true
 		);
+
+		if ( function_exists( 'wp_set_script_translations' ) ) {
+			wp_set_script_translations( 'ai-persona-block-editor', 'ai-persona', AI_PERSONA_PLUGIN_DIR . 'languages' );
+		}
 	}
 
 	/**
@@ -236,6 +241,10 @@ final class Plugin {
 			AI_PERSONA_VERSION,
 			true
 		);
+
+		if ( function_exists( 'wp_set_script_translations' ) ) {
+			wp_set_script_translations( 'ai-persona-admin', 'ai-persona', AI_PERSONA_PLUGIN_DIR . 'languages' );
+		}
 	}
 
 	/**
@@ -247,5 +256,12 @@ final class Plugin {
 	 */
 	public function handle_logging( $response, $prompt, $context ) {
 		\Ai_Persona\Logging\log_generation_event( $response, $prompt, $context );
+	}
+
+	/**
+	 * Load plugin text domain.
+	 */
+	public function load_textdomain() {
+		load_plugin_textdomain( 'ai-persona', false, dirname( plugin_basename( AI_PERSONA_PLUGIN_FILE ) ) . '/languages/' );
 	}
 }
