@@ -48,3 +48,4 @@ The default Ollama provider runs locally and avoids transmitting content externa
 - Analytics opt-in lives under **Settings → AI Persona → Analytics & Logging**; when enabled, inspect `wp-content/uploads/ai-persona/persona.log` or hook `ai_persona_logged_event` for custom telemetry pipelines.
 - Localization: run `./scripts/make-pot.sh` after string changes and update `languages/ai-persona.pot`. Playwright scaffolding sits in `tests/playwright/` for future smoke tests.
 - WordPress core tests live under `tests/wpunit/`; configure `WP_PHPUNIT__DIR` (see README) and provide a test database before running `composer test:wpunit`.
+- The admin builder now includes an AI-assisted Prompt Wizard; ensure `wp.apiFetch` is available and the REST endpoints are accessible when demoing refinement flows.

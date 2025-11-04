@@ -36,7 +36,7 @@
 - [ ] Publish to WordPress.org with deployment workflow.
 
 ## Backlog / Nice to Have
-- [ ] AI-assisted prompt refinement wizard.
+- [x] AI-assisted prompt refinement wizard.
 - [ ] Persona template marketplace or syncing mechanism.
 - [ ] Fine-grained capability mapping for persona creation vs usage.
 - [ ] Enhanced analytics dashboard with aggregated metrics and privacy guardrails.

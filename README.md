@@ -35,6 +35,7 @@ The plugin prioritizes:
 
 ### Persona Creation and Management
 - **Admin Interface**: Custom post type (`ai_persona`) for personas, with metaboxes for prompt components.
+- **AI-Assisted Refinement**: Launch the Prompt Wizard in wp-admin to generate role, guidelines, and guardrails from plain-language goals.
 - **Structured Prompt Builder**:
   - Role: Define the AI's identity (e.g., "You are a helpful assistant specializing in...").
   - Guidelines: Behavioral rules (e.g., "Always respond concisely", "Use bullet points for lists").
