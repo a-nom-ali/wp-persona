@@ -6,62 +6,61 @@
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [
-        0,
-        0
+        304,
+        192
       ],
-      "id": "4e7e7606-2f37-4c27-8bde-5b19f19a5db5",
+      "id": "85645a4a-7aed-4141-9e79-0e94c6f2e469",
       "name": "Manual Trigger"
     },
     {
       "parameters": {
-        "keepOnlySet": false,
         "assignments": {
           "assignments": [
             {
               "name": "site",
               "value": "campaign-forge.local",
-              "type": "string"
+              "type": "string",
+              "id": "f60b9e7d-2c5f-4633-b6d8-7284886800d7"
             },
             {
               "name": "personaId",
-              "value": 123,
-              "type": "number"
-            },
-            {
-              "name": "user",
-              "value": "admin",
-              "type": "string"
-            },
-            {
-              "name": "password",
-              "value": "app-password",
-              "type": "string"
+              "value": 209,
+              "type": "number",
+              "id": "10d610bf-661f-416c-98f1-410b420b9549"
             },
             {
               "name": "userPrompt",
               "value": "Draft a welcome email for new subscribers.",
+              "type": "string",
+              "id": "55665c8f-fde1-4610-9e13-134583b33d05"
+            },
+            {
+              "id": "e2049412-6b57-4cef-a99b-d2c8714add6f",
+              "name": "customer_name",
+              "value": "Frank Spank",
               "type": "string"
             },
             {
-              "name": "openaiKey",
-              "value": "sk-your-openai-key",
+              "id": "3e1ef5f5-478a-4616-a0bb-010996be92a2",
+              "name": "issue_summary",
+              "value": "My spankulator broke within the first 5 spanks!",
               "type": "string"
             }
           ]
-        }
+        },
+        "options": {}
       },
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        220,
-        0
+        528,
+        192
       ],
-      "id": "18d8fdaf-20bb-49e0-9b14-6c025db5f5b5",
+      "id": "b891c511-e34a-4973-8ad4-1df8c9a8b589",
       "name": "Persona Context"
     },
     {
       "parameters": {
-        "method": "GET",
         "url": "=http://{{$json.site}}/wp-json/ai-persona/v1/persona/{{$json.personaId}}",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpBasicAuth",
@@ -70,10 +69,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        440,
-        0
+        752,
+        192
       ],
-      "id": "0a4c6162-0cf7-4d6e-b1db-66672ef39c53",
+      "id": "e5c7b237-1e8b-4e14-bbfe-308de0e5e7e1",
       "name": "Fetch Persona",
       "credentials": {
         "httpBasicAuth": {
@@ -84,92 +83,109 @@
     },
     {
       "parameters": {
-        "keepOnlySet": false,
         "assignments": {
           "assignments": [
             {
               "name": "systemPrompt",
               "value": "={{ $json.compiled_prompt }}",
-              "type": "string"
+              "type": "string",
+              "id": "e36fd057-d760-46f8-8805-459f0e75fb74"
             },
             {
               "name": "userPrompt",
-              "value": "={{ $node[\"Persona Context\"].json.userPrompt }}",
-              "type": "string"
-            },
-            {
-              "name": "openaiKey",
-              "value": "={{ $node[\"Persona Context\"].json.openaiKey }}",
-              "type": "string"
-            },
-            {
-              "name": "openaiRequest",
-              "value": "={{ ({ model: 'gpt-4o-mini', messages: [ { role: 'system', content: $json.compiled_prompt || '' }, { role: 'user', content: $node[\"Persona Context\"].json.userPrompt || '' } ] }) }}",
-              "type": "object"
+              "value": "={{ $(\"Persona Context\").item.json.userPrompt }}",
+              "type": "string",
+              "id": "0a68feef-c76c-4373-bfaf-99f5d3e3031c"
             }
           ]
-        }
+        },
+        "options": {}
       },
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        660,
-        0
+        1200,
+        192
       ],
-      "id": "27d73606-4dde-4a62-8f5b-826d948ef4d0",
+      "id": "51e7f5b1-55ce-49e2-8f8b-2445d253e9b1",
       "name": "Compose OpenAI Payload"
     },
     {
       "parameters": {
-        "method": "POST",
-        "url": "https://api.openai.com/v1/chat/completions",
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify($json.openaiRequest) }}",
-        "options": {
-          "headers": {
-            "Authorization": "={{ `Bearer ${$json.openaiKey}` }}",
-            "Content-Type": "application/json"
-          }
-        }
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.3,
-      "position": [
-        880,
-        0
-      ],
-      "id": "1cbbef15-cdf6-4e5c-9c7e-2d8f4bfad525",
-      "name": "Call OpenAI"
-    },
-    {
-      "parameters": {
-        "keepOnlySet": true,
         "assignments": {
           "assignments": [
             {
               "name": "assistantReply",
-              "value": "={{ $json.choices[0].message.content }}",
-              "type": "string"
-            },
-            {
-              "name": "tokensUsed",
-              "value": "={{ $json.usage.total_tokens }}",
-              "type": "number"
+              "value": "={{ $json.output }}",
+              "type": "string",
+              "id": "47dcbf76-fae3-42f7-88f0-093f8e5e4e26"
             }
           ]
-        }
+        },
+        "options": {}
       },
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        1100,
-        0
+        1776,
+        192
       ],
-      "id": "b7f8018b-53c2-4e0e-95df-dc6d202d1f02",
+      "id": "c576872e-a6dc-4c67-b596-cd8fe890ffb6",
       "name": "Agent Response"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.userPrompt }}",
+        "options": {
+          "systemMessage": "={{ $json.systemPrompt }}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        1424,
+        192
+      ],
+      "id": "bd1bd2a5-f787-4fed-9ea9-0f08e53eb6a6",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "minimax-m2:cloud",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        1496,
+        416
+      ],
+      "id": "2fb4097a-55ba-4b97-a405-9094fd35f5fa",
+      "name": "Ollama Chat Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "5M23qvlYX7hFbDiC",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "let compiled_prompt = $json.compiled_prompt;\nfor (const v of $json.persona.variables) {\n  compiled_prompt = compiled_prompt.replaceAll(\"{{\" + v.name + \"}}\", $(\"Persona Context\").item.json[v.name]);\n}\n\n$json.compiled_prompt = compiled_prompt;\nreturn $json;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        976,
+        192
+      ],
+      "id": "88d1afb0-fb42-4c3d-ad5e-b0afa62a5e63",
+      "name": "Code in JavaScript"
     }
   ],
+  "pinData": {},
   "connections": {
     "Manual Trigger": {
       "main": [
@@ -197,7 +213,7 @@
       "main": [
         [
           {
-            "node": "Compose OpenAI Payload",
+            "node": "Code in JavaScript",
             "type": "main",
             "index": 0
           }
@@ -208,14 +224,36 @@
       "main": [
         [
           {
-            "node": "Call OpenAI",
+            "node": "AI Agent",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Call OpenAI": {
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Compose OpenAI Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
       "main": [
         [
           {
@@ -231,7 +269,11 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "0d4f9d2f-7373-40b3-88a9-5b87d7f97720",
-  "id": "CQGyvLSmDXwVN5w4",
+  "versionId": "1fed3b4d-5e4c-451d-b740-153fb1d8d955",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "440b090a193318a0a8f25cb6969ccde5241b5c3d5721d9b10cac676c21af9d08"
+  },
+  "id": "CuNbMR9QvMBncM2f",
   "tags": []
 }
