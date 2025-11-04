@@ -231,6 +231,16 @@ The response contains the normalized persona fields and the compiled prompt cons
 
 Within wp-admin, an **Export Persona JSON** button is available in the persona editor once the post is saved.
 
+For automation, the repository ships helper scripts that rely on Application Passwords:
+
+```bash
+# Export persona 123 to JSON
+AI_PERSONA_SITE=https://example.com \
+AI_PERSONA_USER=automation-user \
+AI_PERSONA_APP_PASSWORD=app-password \
+./scripts/persona-export.sh 123 > persona-123.json
+```
+
 ### Persona Import
 
 To import, either:
@@ -239,6 +249,16 @@ To import, either:
 - Or, POST the same JSON payload to a custom integration and manually persist it via the WordPress admin UI.
 
 The expected JSON structure mirrors the export response and accepts `role`, `guidelines`, `constraints`, `variables`, and `examples` fields.
+
+Helper script for automation:
+
+```bash
+# Create or update a persona from persona.json
+AI_PERSONA_SITE=https://example.com \
+AI_PERSONA_USER=automation-user \
+AI_PERSONA_APP_PASSWORD=app-password \
+./scripts/persona-import.sh create persona.json
+```
 
 ### Persona Create & Update (REST)
 

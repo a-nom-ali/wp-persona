@@ -24,7 +24,7 @@
 
 ## 0.4.0 – Integrations & Extensibility
 - [x] Ship optional remote provider adapters (OpenAI, Anthropic) reusing provider abstraction.
-- [ ] Add export/import flows (JSON + WordPress REST).
+- [x] Add export/import flows (JSON + WordPress REST).
 - [x] Document filters/actions; ship reference implementations for n8n and webhooks.
 - [ ] Implement WordPress-native authentication flows (nonces, application passwords) for external consumers.
 - [x] Provide REST automation endpoints for persona lifecycle (create/update/delete/duplicate).
