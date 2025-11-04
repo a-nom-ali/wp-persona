@@ -1,8 +1,8 @@
 ( () => {
 	const { registerBlockType } = wp.blocks;
-	const { InspectorControls } = wp.blockEditor || wp.editor;
+	const { InspectorControls, PanelColorSettings } = wp.blockEditor || wp.editor;
 	const { useSelect } = wp.data;
-	const { PanelBody, SelectControl, ToggleControl, TextControl, Spinner } = wp.components;
+	const { PanelBody, SelectControl, ToggleControl, TextControl, Spinner, RangeControl, __experimentalUnitControl: UnitControl } = wp.components;
 	const { useMemo, Fragment, createElement: el } = wp.element;
 	const { __, sprintf } = wp.i18n;
 
@@ -23,10 +23,44 @@
 				type: 'string',
 				default: __( 'Chat with persona', 'ai-persona' ),
 			},
+			primaryColor: {
+				type: 'string',
+				default: '',
+			},
+			backgroundColor: {
+				type: 'string',
+				default: '',
+			},
+			textColor: {
+				type: 'string',
+				default: '',
+			},
+			borderRadius: {
+				type: 'number',
+				default: 0,
+			},
+			maxWidth: {
+				type: 'string',
+				default: '',
+			},
+			fontSize: {
+				type: 'string',
+				default: '',
+			},
 		},
 		edit: ( props ) => {
 			const { attributes, setAttributes } = props;
-			const { personaId = 0, showHeader = true, headerTitle = __( 'Chat with persona', 'ai-persona' ) } = attributes;
+			const {
+				personaId = 0,
+				showHeader = true,
+				headerTitle = __( 'Chat with persona', 'ai-persona' ),
+				primaryColor = '',
+				backgroundColor = '',
+				textColor = '',
+				borderRadius = 0,
+				maxWidth = '',
+				fontSize = ''
+			} = attributes;
 
 			const personas = useSelect(
 				( select ) =>
@@ -93,7 +127,52 @@
 								onChange: ( value ) => setAttributes( { headerTitle: value } ),
 							} )
 							: null
-				)
+					),
+					el( PanelColorSettings, {
+						title: __( 'Color Settings', 'ai-persona' ),
+						initialOpen: false,
+						colorSettings: [
+							{
+								value: primaryColor,
+								onChange: ( value ) => setAttributes( { primaryColor: value } ),
+								label: __( 'Primary Color', 'ai-persona' ),
+							},
+							{
+								value: backgroundColor,
+								onChange: ( value ) => setAttributes( { backgroundColor: value } ),
+								label: __( 'Background Color', 'ai-persona' ),
+							},
+							{
+								value: textColor,
+								onChange: ( value ) => setAttributes( { textColor: value } ),
+								label: __( 'Text Color', 'ai-persona' ),
+							},
+						],
+					} ),
+					el(
+						PanelBody,
+						{ title: __( 'Styling', 'ai-persona' ), initialOpen: false },
+						el( RangeControl, {
+							label: __( 'Border Radius (px)', 'ai-persona' ),
+							value: borderRadius,
+							onChange: ( value ) => setAttributes( { borderRadius: value } ),
+							min: 0,
+							max: 50,
+							help: __( 'Set to 0 to use default theme radius', 'ai-persona' ),
+						} ),
+						el( TextControl, {
+							label: __( 'Max Width', 'ai-persona' ),
+							value: maxWidth,
+							onChange: ( value ) => setAttributes( { maxWidth: value } ),
+							help: __( 'e.g., 600px, 100%, or leave empty for full width', 'ai-persona' ),
+						} ),
+						el( TextControl, {
+							label: __( 'Font Size', 'ai-persona' ),
+							value: fontSize,
+							onChange: ( value ) => setAttributes( { fontSize: value } ),
+							help: __( 'e.g., 16px, 1rem, or leave empty for default', 'ai-persona' ),
+						} )
+					)
 				),
 				el(
 				'div',

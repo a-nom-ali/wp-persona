@@ -20,6 +20,30 @@
 		"headerTitle": {
 			"type": "string",
 			"default": "Chat with persona"
+		},
+		"primaryColor": {
+			"type": "string",
+			"default": ""
+		},
+		"backgroundColor": {
+			"type": "string",
+			"default": ""
+		},
+		"textColor": {
+			"type": "string",
+			"default": ""
+		},
+		"borderRadius": {
+			"type": "number",
+			"default": 0
+		},
+		"maxWidth": {
+			"type": "string",
+			"default": ""
+		},
+		"fontSize": {
+			"type": "string",
+			"default": ""
 		}
 	}
 }
