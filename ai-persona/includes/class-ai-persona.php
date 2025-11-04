@@ -188,22 +188,6 @@ final class Plugin {
 	public function enqueue_frontend_assets() {
 		$base_url = plugin_dir_url( AI_PERSONA_PLUGIN_FILE );
 
-		wp_enqueue_script(
-			'ai-persona-marked',
-			$base_url . 'assets/vendor/marked.min.js',
-			array(),
-			AI_PERSONA_VERSION,
-			true
-		);
-
-		wp_enqueue_script(
-			'ai-persona-dompurify',
-			$base_url . 'assets/vendor/purify.min.js',
-			array(),
-			AI_PERSONA_VERSION,
-			true
-		);
-
 		wp_enqueue_style(
 			'ai-persona-frontend',
 			$base_url . 'assets/css/styles.css',
@@ -214,7 +198,7 @@ final class Plugin {
 		wp_enqueue_script(
 			'ai-persona-frontend',
 			$base_url . 'assets/js/chat.js',
-			array( 'ai-persona-marked', 'ai-persona-dompurify' ),
+			array(),
 			AI_PERSONA_VERSION,
 			true
 		);

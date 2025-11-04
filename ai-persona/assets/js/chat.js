@@ -30,19 +30,80 @@
 		container.innerHTML = '';
 		messages.forEach( ( message ) => container.appendChild( message ) );
 	};
+	const escapeHtml = ( value = '' ) => value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+	const formatInline = ( value = '' ) => {
+		let output = escapeHtml( value );
+		output = output.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+		output = output.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+		output = output.replace(/`([^`]+)`/g, '<code>$1</code>');
+		output = output.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+		return output;
+	};
 	const renderMarkdown = ( target, markdown = '' ) => {
-		const hasMarked = 'object' === typeof window && window.marked && ( typeof window.marked.parse === 'function' || typeof window.marked === 'function' );
-		const hasDOMPurify = 'object' === typeof window && window.DOMPurify && typeof window.DOMPurify.sanitize === 'function';
-		if ( hasMarked && hasDOMPurify ) {
-			try {
-				const raw = typeof window.marked.parse === 'function' ? window.marked.parse( markdown ?? '' ) : window.marked( markdown ?? '' );
-				target.innerHTML = window.DOMPurify.sanitize( raw, { USE_PROFILES: { html: true } } );
-				return;
-			} catch ( error ) {
-				// Fallback to text content below.
+		const lines = ( markdown || '' ).split(/\r?\n/);
+		const html = [];
+		let inUnordered = false;
+		let inOrdered = false;
+		let inCodeBlock = false;
+		let codeBuffer = [];
+		const flushLists = () => {
+			if ( inUnordered ) {
+				html.push('</ul>');
+				inUnordered = false;
 			}
+			if ( inOrdered ) {
+				html.push('</ol>');
+				inOrdered = false;
+			}
+		};
+		lines.forEach( ( line ) => {
+			const trimmed = line.trim();
+			if ( trimmed.startsWith('```') ) {
+				if ( inCodeBlock ) {
+					html.push(`<pre><code>${ escapeHtml( codeBuffer.join('\n') ) }</code></pre>`);
+					codeBuffer = [];
+					inCodeBlock = false;
+				} else {
+					inCodeBlock = true;
+				}
+				return;
+			}
+			if ( inCodeBlock ) {
+				codeBuffer.push( line );
+				return;
+			}
+			if ( /^[-*]\s+/.test( trimmed ) ) {
+				if ( ! inUnordered ) {
+					flushLists();
+					html.push('<ul>');
+					inUnordered = true;
+				}
+				const item = trimmed.replace(/^[-*]\s+/, '');
+				html.push(`<li>${ formatInline( item ) }</li>`);
+				return;
+			}
+			if ( /^\d+\.\s+/.test( trimmed ) ) {
+				if ( ! inOrdered ) {
+					flushLists();
+					html.push('<ol>');
+					inOrdered = true;
+				}
+				const item = trimmed.replace(/^\d+\.\s+/, '');
+				html.push(`<li>${ formatInline( item ) }</li>`);
+				return;
+			}
+			if ( trimmed.length === 0 ) {
+				flushLists();
+				return;
+			}
+			flushLists();
+			html.push(`<p>${ formatInline( trimmed ) }</p>`);
+		} );
+		flushLists();
+		if ( inCodeBlock && codeBuffer.length ) {
+			html.push(`<pre><code>${ escapeHtml( codeBuffer.join('\n') ) }</code></pre>`);
 		}
-		target.textContent = markdown ?? '';
+		target.innerHTML = html.join('');
 	};
 	const boot = () => {
 		document.querySelectorAll( rootSelector ).forEach( ( node ) => {
