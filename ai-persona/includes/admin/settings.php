@@ -101,6 +101,13 @@ function register_settings() {
 		'ai-persona-settings',
 		'ai_persona_general'
 	);
+
+	add_settings_section(
+		'ai_persona_auth',
+		__( 'Automation Authentication', 'ai-persona' ),
+		__NAMESPACE__ . '\\render_authentication_help',
+		'ai-persona-settings'
+	);
 }
 add_action( 'admin_init', __NAMESPACE__ . '\\register_settings' );
 
@@ -119,6 +126,21 @@ function render_settings_page() {
 			?>
 		</form>
 	</div>
+	<?php
+}
+
+function render_authentication_help() {
+	$application_passwords_url = admin_url( 'profile.php#application-passwords-section' );
+	?>
+	<p><?php esc_html_e( 'Automations can authenticate with WordPress cookies + nonces or Application Passwords.', 'ai-persona' ); ?></p>
+	<ol>
+		<li><?php
+		printf( esc_html__( 'Create an Application Password for the automation user via %s.', 'ai-persona' ), sprintf( '<a href="%1$s">%2$s</a>', esc_url( $application_passwords_url ), esc_html__( 'Users → Profile', 'ai-persona' ) ) );
+		?></li>
+		<li><?php esc_html_e( 'Store the username/password securely (environment variables, secrets manager).', 'ai-persona' ); ?></li>
+		<li><?php esc_html_e( 'Use the bundled scripts or your own REST clients over HTTPS.', 'ai-persona' ); ?></li>
+	</ol>
+	<p class="description"><?php esc_html_e( 'Never commit plaintext credentials to source control.', 'ai-persona' ); ?></p>
 	<?php
 }
 
