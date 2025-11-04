@@ -1081,13 +1081,3 @@
 
 	render( el( Builder ), root );
 } )();
-	const resolveCapability = ( key ) => {
-		if ( ! key || 'string' !== typeof key ) {
-			return false;
-		}
-
-		return !! capabilityMap[ key ];
-	};
-
-	const canPublish = resolveCapability( 'publish_posts' );
-	const canDelete = resolveCapability( 'delete_posts' );
