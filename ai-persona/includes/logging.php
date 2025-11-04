@@ -136,3 +136,126 @@ function get_log_totals() {
 
 	return $totals;
 }
+
+/**
+ * Provide aggregate metrics for the analytics dashboard.
+ *
+ * @return array
+ */
+function get_log_summary() {
+	$entries = get_log_entries( 1000 );
+
+	if ( empty( $entries ) ) {
+		return array(
+			'total_events'     => 0,
+			'unique_personas'  => 0,
+			'unique_providers' => 0,
+			'last_24_hours'    => 0,
+			'last_7_days'      => 0,
+			'avg_prompt_chars' => 0,
+			'providers'        => array(),
+			'personas'         => array(),
+		);
+	}
+
+	$provider_counts = array();
+	$persona_counts  = array();
+	$total_prompt    = 0;
+	$last24          = 0;
+	$last7           = 0;
+	$now             = time();
+
+	foreach ( $entries as $entry ) {
+		if ( ! is_array( $entry ) ) {
+			continue;
+		}
+
+		$provider = isset( $entry['provider'] ) ? $entry['provider'] : 'unknown';
+		$persona  = isset( $entry['persona_id'] ) ? (int) $entry['persona_id'] : 0;
+		$timestamp = isset( $entry['timestamp'] ) ? strtotime( $entry['timestamp'] ) : false;
+
+		if ( ! isset( $provider_counts[ $provider ] ) ) {
+			$provider_counts[ $provider ] = 0;
+		}
+		$provider_counts[ $provider ]++;
+
+		if ( ! isset( $persona_counts[ $persona ] ) ) {
+			$persona_counts[ $persona ] = 0;
+		}
+		$persona_counts[ $persona ]++;
+
+		$total_prompt += isset( $entry['prompt_len'] ) ? (int) $entry['prompt_len'] : 0;
+
+		if ( $timestamp ) {
+			if ( ( $now - $timestamp ) <= DAY_IN_SECONDS ) {
+				$last24++;
+			}
+
+			if ( ( $now - $timestamp ) <= WEEK_IN_SECONDS ) {
+				$last7++;
+			}
+		}
+	}
+
+	arsort( $provider_counts );
+	arsort( $persona_counts );
+
+	$total_events = array_sum( $provider_counts );
+	$avg_prompt   = $total_events ? round( $total_prompt / $total_events ) : 0;
+
+	return array(
+		'total_events'     => $total_events,
+		'unique_personas'  => count( array_keys( $persona_counts ) ),
+		'unique_providers' => count( array_keys( $provider_counts ) ),
+		'last_24_hours'    => $last24,
+		'last_7_days'      => $last7,
+		'avg_prompt_chars' => $avg_prompt,
+		'providers'        => $provider_counts,
+		'personas'         => $persona_counts,
+	);
+}
+
+/**
+ * Return recent log entries prepared for dashboard display.
+ *
+ * @param int $limit Number of entries to return.
+ * @return array
+ */
+function get_recent_log_entries( $limit = 20 ) {
+	$entries = array_reverse( get_log_entries( $limit ) );
+	$results = array();
+
+	foreach ( $entries as $entry ) {
+		if ( ! is_array( $entry ) ) {
+			continue;
+		}
+
+		$results[] = array(
+			'timestamp'  => isset( $entry['timestamp'] ) ? $entry['timestamp'] : '',
+			'provider'   => isset( $entry['provider'] ) ? $entry['provider'] : 'unknown',
+			'persona_id' => isset( $entry['persona_id'] ) ? (int) $entry['persona_id'] : 0,
+			'prompt_len' => isset( $entry['prompt_len'] ) ? (int) $entry['prompt_len'] : 0,
+			'preview'    => sanitize_log_preview( isset( $entry['user_input'] ) ? $entry['user_input'] : '' ),
+		);
+	}
+
+	return $results;
+}
+
+/**
+ * Prepare the user input preview for safe display.
+ *
+ * @param string $value Raw user input.
+ * @return string
+ */
+function sanitize_log_preview( $value ) {
+	$stripped = wp_strip_all_tags( (string) $value );
+	$stripped = preg_replace( '/\\s+/', ' ', $stripped );
+	$preview  = mb_substr( $stripped, 0, 160 );
+
+	if ( mb_strlen( $stripped ) > 160 ) {
+		$preview .= '…';
+	}
+
+	return $preview;
+}

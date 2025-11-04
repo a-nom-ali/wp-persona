@@ -361,6 +361,7 @@ This uses `wp i18n make-pot` to write `languages/ai-persona.pot`. Only commit th
 
 - Toggle the analytics/logging opt-in under **Settings → AI Persona → Analytics & Logging**. When enabled, persona generation events are appended to `wp-content/uploads/ai-persona/persona.log` as newline-delimited JSON.
 - Each entry contains a timestamp, persona ID, provider, prompt length, and the user input; sensitive provider responses are not stored by default.
+- Visit **AI Personas → Analytics** to view dashboards with provider breakdowns, top personas, and recent activity. User input previews are truncated by default for privacy.
 - Listen to the `ai_persona_logged_event` action to forward logs to external observability systems.
 
 

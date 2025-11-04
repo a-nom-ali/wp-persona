@@ -52,3 +52,4 @@ The default Ollama provider runs locally and avoids transmitting content externa
 - Persona builder ships with a template library (hook `ai_persona_template_library`); extend it or provide remote syncs to surface organisation-specific presets.
 - Permissions: adjust which roles can read/edit/publish/delete personas under Settings → AI Persona → Permissions. The stored map always keeps Administrators in every capability bucket.
 - Persona capabilities default to author/editor roles; override via `ai_persona_capability_map` when integrating custom role policies. Document any changes for downstream agents.
+- Analytics dashboard lives under **AI Personas → Analytics** once logging is enabled; previews are truncated to protect PII.
