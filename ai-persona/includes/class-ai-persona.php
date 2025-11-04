@@ -172,7 +172,7 @@ final class Plugin {
 		wp_enqueue_script(
 			'ai-persona-block-editor',
 			$asset_path,
-			array( 'wp-blocks', 'wp-element', 'wp-components', 'wp-editor' ),
+			array( 'wp-blocks', 'wp-element', 'wp-components', 'wp-i18n', 'wp-data', 'wp-block-editor', 'wp-editor' ),
 			AI_PERSONA_VERSION,
 			true
 		);
