@@ -246,13 +246,20 @@ final class Plugin {
 		);
 
 		$templates = \Ai_Persona\Admin\get_persona_templates();
+		$cap_map   = \Ai_Persona\Capabilities\get_persona_capabilities();
+		$permissions = array(
+			'canEdit'    => current_user_can( $cap_map['edit_posts'] ),
+			'canPublish' => current_user_can( $cap_map['publish_posts'] ),
+			'canDelete'  => current_user_can( $cap_map['delete_posts'] ),
+		);
 
 		wp_localize_script(
 			'ai-persona-admin',
 			'AiPersonaAdmin',
 			array(
-				'templates' => $templates,
-				'caps'      => \Ai_Persona\Capabilities\get_persona_capabilities(),
+				'templates'   => $templates,
+				'capabilities'=> $cap_map,
+				'permissions' => $permissions,
 			)
 		);
 

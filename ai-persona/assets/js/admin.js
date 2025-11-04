@@ -29,6 +29,10 @@
 	const apiFetch = wp.apiFetch ? wp.apiFetch : null;
 	const adminData = window.AiPersonaAdmin || {};
 	const templateLibrary = Array.isArray( adminData.templates ) ? adminData.templates : [];
+	const permissions = adminData.permissions || {};
+	const canEdit = Object.prototype.hasOwnProperty.call( permissions, 'canEdit' ) ? !! permissions.canEdit : true;
+	const canPublish = Object.prototype.hasOwnProperty.call( permissions, 'canPublish' ) ? !! permissions.canPublish : canEdit;
+	const canDelete = Object.prototype.hasOwnProperty.call( permissions, 'canDelete' ) ? !! permissions.canDelete : canEdit;
 
 	const uniqueId = ( () => {
 		let index = Date.now();
@@ -183,7 +187,8 @@
 		const [ templateOpen, setTemplateOpen ] = useState( false );
 		const [ templateFilter, setTemplateFilter ] = useState( '' );
 
-		const canUseWizard = typeof apiFetch === 'function';
+		const canUseWizard = typeof apiFetch === 'function' && canEdit;
+		const isReadOnly = ! canEdit;
 
 		const payload = useMemo( () => {
 			return {
@@ -253,6 +258,9 @@
 		}, [ payload ] );
 
 		const updateListItem = ( key, id, value ) => {
+			if ( ! canEdit ) {
+				return;
+			}
 			setState( ( current ) => ( {
 				...current,
 				[ key ]: current[ key ].map( ( item ) => ( item.id === id ? { ...item, value } : item ) ),
@@ -260,6 +268,9 @@
 		};
 
 		const removeListItem = ( key, id ) => {
+			if ( ! canEdit ) {
+				return;
+			}
 			setState( ( current ) => {
 				const next = current[ key ].filter( ( item ) => item.id !== id );
 				return {
@@ -270,6 +281,9 @@
 		};
 
 		const addListItem = ( key ) => {
+			if ( ! canEdit ) {
+				return;
+			}
 			setState( ( current ) => ( {
 				...current,
 				[ key ]: [ ...current[ key ], { id: uniqueId(), value: '' } ],
@@ -277,6 +291,9 @@
 		};
 
 		const updateExample = ( id, field, value ) => {
+			if ( ! canEdit ) {
+				return;
+			}
 			setState( ( current ) => ( {
 				...current,
 				examples: current.examples.map( ( example ) => ( example.id === id ? { ...example, [ field ]: value } : example ) ),
@@ -284,6 +301,9 @@
 		};
 
 		const removeExample = ( id ) => {
+			if ( ! canEdit ) {
+				return;
+			}
 			setState( ( current ) => {
 				const next = current.examples.filter( ( example ) => example.id !== id );
 				return {
@@ -294,6 +314,9 @@
 		};
 
 		const addExample = () => {
+			if ( ! canEdit ) {
+				return;
+			}
 			setState( ( current ) => ( {
 				...current,
 				examples: [ ...current.examples, { id: uniqueId(), input: '', output: '' } ],
@@ -301,6 +324,9 @@
 		};
 
 		const updateVariable = ( id, field, value ) => {
+			if ( ! canEdit ) {
+				return;
+			}
 			setState( ( current ) => ( {
 				...current,
 				variables: current.variables.map( ( variable ) => ( variable.id === id ? { ...variable, [ field ]: value } : variable ) ),
@@ -308,6 +334,9 @@
 		};
 
 		const removeVariable = ( id ) => {
+			if ( ! canEdit ) {
+				return;
+			}
 			setState( ( current ) => {
 				const next = current.variables.filter( ( variable ) => variable.id !== id );
 				return {
@@ -318,6 +347,9 @@
 		};
 
 		const addVariable = () => {
+			if ( ! canEdit ) {
+				return;
+			}
 			setState( ( current ) => ( {
 				...current,
 				variables: [ ...current.variables, { id: uniqueId(), name: '', description: '' } ],
@@ -325,7 +357,7 @@
 		};
 
 		const openWizard = () => {
-			if ( ! canUseWizard ) {
+			if ( ! canUseWizard || ! canEdit ) {
 				return;
 			}
 
@@ -349,7 +381,7 @@
 		};
 
 		const handleWizardGenerate = () => {
-			if ( ! canUseWizard ) {
+			if ( ! canUseWizard || ! canEdit ) {
 				setWizardError( __( 'The WordPress REST client is unavailable in this context.', 'ai-persona' ) );
 				return;
 			}
@@ -440,7 +472,7 @@
 		};
 
 		const applyWizardSuggestions = () => {
-			if ( ! wizardSuggestions ) {
+			if ( ! wizardSuggestions || ! canEdit ) {
 				return;
 			}
 
@@ -671,7 +703,7 @@
 							{
 								variant: 'primary',
 								onClick: applyWizardSuggestions,
-								disabled: ! wizardSuggestions,
+								disabled: ! wizardSuggestions || ! canEdit,
 							},
 							__( 'Apply to persona', 'ai-persona' )
 						)
@@ -681,7 +713,7 @@
 		};
 
 		const applyTemplate = ( template ) => {
-			if ( ! template || ! template.payload ) {
+			if ( ! canEdit || ! template || ! template.payload ) {
 				return;
 			}
 
@@ -804,6 +836,13 @@
 			el(
 				'div',
 				{ className: 'ai-persona-builder' },
+				isReadOnly
+					? el(
+							Notice,
+							{ status: 'info', isDismissible: false },
+							el( 'p', null, __( 'You have read-only access to this persona. Duplicate it or request elevated permissions to make changes.', 'ai-persona' ) )
+					  )
+					: null,
 				errors.length > 0
 					? el(
 							Notice,
@@ -827,22 +866,29 @@
 						Button,
 						{
 							variant: 'secondary',
-							onClick: () => setTemplateOpen( true ),
-							disabled: templateLibrary.length === 0,
+							onClick: () => {
+								if ( ! canEdit ) {
+									return;
+								}
+								setTemplateOpen( true );
+							},
+							disabled: templateLibrary.length === 0 || ! canEdit,
 						},
 						__( 'Browse templates', 'ai-persona' )
 					),
 					el(
 						'span',
 						{ className: 'ai-persona-builder__toolbar-hint' },
-						[
-							canUseWizard
-								? __( 'Generate starter guidelines from natural language goals.', 'ai-persona' )
-								: __( 'wp.apiFetch unavailable on this screen; wizard disabled.', 'ai-persona' ),
-							templateLibrary.length
-								? __( 'Load curated templates to accelerate persona authoring.', 'ai-persona' )
-								: __( 'Add templates via the ai_persona_template_library filter to enable browsing.', 'ai-persona' ),
-						].join( ' • ' )
+						isReadOnly
+							? __( 'Read-only mode: review persona details without making changes.', 'ai-persona' )
+							: [
+									canUseWizard
+										? __( 'Generate starter guidelines from natural language goals.', 'ai-persona' )
+										: __( 'wp.apiFetch unavailable on this screen; wizard disabled.', 'ai-persona' ),
+									templateLibrary.length
+										? __( 'Load curated templates to accelerate persona authoring.', 'ai-persona' )
+										: __( 'Add templates via the ai_persona_template_library filter to enable browsing.', 'ai-persona' ),
+							  ].join( ' • ' )
 					)
 				),
 				el(
@@ -858,6 +904,7 @@
 							onChange: ( value ) => setState( ( current ) => ( { ...current, role: value } ) ),
 							help: __( 'Explain who the persona is, their expertise, and how they should think.', 'ai-persona' ),
 							rows: 4,
+							disabled: ! canEdit,
 						} )
 					)
 				),
@@ -893,7 +940,7 @@
 							),
 							el(
 								Button,
-								{ variant: 'primary', onClick: () => addListItem( 'guidelines' ) },
+								{ variant: 'primary', onClick: () => addListItem( 'guidelines' ), disabled: ! canEdit },
 								__( 'Add guideline', 'ai-persona' )
 							)
 						)
@@ -927,7 +974,7 @@
 							),
 							el(
 								Button,
-								{ variant: 'primary', onClick: () => addListItem( 'constraints' ) },
+								{ variant: 'primary', onClick: () => addListItem( 'constraints' ), disabled: ! canEdit },
 								__( 'Add constraint', 'ai-persona' )
 							)
 						)
@@ -949,11 +996,13 @@
 									value: variable.name,
 									onChange: ( value ) => updateVariable( variable.id, 'name', value ),
 									help: __( 'Use lowercase with underscores (example: customer_name).', 'ai-persona' ),
+									disabled: ! canEdit,
 								} ),
 								el( TextControl, {
 									label: __( 'Description', 'ai-persona' ),
 									value: variable.description,
 									onChange: ( value ) => updateVariable( variable.id, 'description', value ),
+									disabled: ! canEdit,
 								} ),
 								el(
 									Button,
@@ -966,7 +1015,7 @@
 								)
 							)
 						),
-						el( Button, { variant: 'primary', onClick: addVariable }, __( 'Add variable', 'ai-persona' ) )
+						el( Button, { variant: 'primary', onClick: addVariable, disabled: ! canEdit }, __( 'Add variable', 'ai-persona' ) )
 					)
 				),
 				el(
@@ -1003,7 +1052,7 @@
 								)
 							)
 						),
-						el( Button, { variant: 'primary', onClick: addExample }, __( 'Add example', 'ai-persona' ) )
+						el( Button, { variant: 'primary', onClick: addExample, disabled: ! canEdit }, __( 'Add example', 'ai-persona' ) )
 					)
 				),
 				el(
@@ -1032,3 +1081,13 @@
 
 	render( el( Builder ), root );
 } )();
+	const resolveCapability = ( key ) => {
+		if ( ! key || 'string' !== typeof key ) {
+			return false;
+		}
+
+		return !! capabilityMap[ key ];
+	};
+
+	const canPublish = resolveCapability( 'publish_posts' );
+	const canDelete = resolveCapability( 'delete_posts' );

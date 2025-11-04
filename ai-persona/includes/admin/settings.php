@@ -65,6 +65,16 @@ function register_settings() {
 
 	register_setting(
 		'ai_persona',
+		'ai_persona_role_capabilities',
+		array(
+			'type'              => 'array',
+			'sanitize_callback' => __NAMESPACE__ . '\\sanitize_role_capabilities_option',
+			'default'           => \Ai_Persona\Capabilities\get_default_role_capabilities(),
+		)
+	);
+
+	register_setting(
+		'ai_persona',
 		'ai_persona_logging_enabled',
 		array(
 			'type'              => 'boolean',
@@ -128,6 +138,21 @@ function register_settings() {
 	);
 
 	add_settings_section(
+		'ai_persona_permissions',
+		__( 'Permissions', 'ai-persona' ),
+		'__return_false',
+		'ai-persona-settings'
+	);
+
+	add_settings_field(
+		'ai_persona_role_capabilities',
+		__( 'Role access', 'ai-persona' ),
+		__NAMESPACE__ . '\\render_role_capabilities_field',
+		'ai-persona-settings',
+		'ai_persona_permissions'
+	);
+
+	add_settings_section(
 		'ai_persona_auth',
 		__( 'Automation Authentication', 'ai-persona' ),
 		__NAMESPACE__ . '\\render_authentication_help',
@@ -168,6 +193,94 @@ function render_authentication_help() {
 	<p class="description"><?php esc_html_e( 'Never commit plaintext credentials to source control.', 'ai-persona' ); ?></p>
 	<?php
 }
+
+/**
+ * Sanitize the permissions matrix option.
+ *
+ * @param mixed $value Raw submitted value.
+ * @return array
+ */
+function sanitize_role_capabilities_option( $value ) {
+	return \Ai_Persona\Capabilities\sanitize_role_capability_option( $value );
+}
+
+/**
+ * Render the role capability configuration field.
+ */
+function render_role_capabilities_field() {
+	$wp_roles = wp_roles();
+	$roles    = $wp_roles->roles;
+	$config   = \Ai_Persona\Capabilities\get_role_settings();
+
+	$columns = array(
+		'edit'    => __( 'Create & edit personas', 'ai-persona' ),
+		'publish' => __( 'Publish personas', 'ai-persona' ),
+		'delete'  => __( 'Delete personas', 'ai-persona' ),
+		'read'    => __( 'Read private personas', 'ai-persona' ),
+	);
+	?>
+	<table class="ai-persona-role-table">
+		<thead>
+			<tr>
+				<th><?php esc_html_e( 'Role', 'ai-persona' ); ?></th>
+				<?php foreach ( $columns as $column_key => $column_label ) : ?>
+					<th><?php echo esc_html( $column_label ); ?></th>
+				<?php endforeach; ?>
+			</tr>
+		</thead>
+		<tbody>
+			<?php foreach ( $roles as $role_slug => $role_details ) : ?>
+				<tr>
+					<td class="ai-persona-role-table__role"><?php echo esc_html( translate_user_role( $role_details['name'] ) ); ?></td>
+					<?php foreach ( $columns as $column_key => $column_label ) : ?>
+						<?php
+						$input_name = sprintf( 'ai_persona_role_capabilities[%s][]', $column_key );
+						$checked    = in_array( $role_slug, $config[ $column_key ], true );
+						$disabled   = ( 'administrator' === $role_slug );
+
+						$attributes = $checked ? ' checked="checked"' : '';
+						if ( $disabled ) {
+							$attributes .= ' disabled="disabled"';
+						}
+						?>
+						<td>
+							<label class="ai-persona-role-table__checkbox">
+								<input type="checkbox" name="<?php echo esc_attr( $input_name ); ?>" value="<?php echo esc_attr( $role_slug ); ?>"<?php echo $attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?> />
+								<span class="screen-reader-text">
+									<?php
+									printf(
+										/* translators: %s: capability action label */
+										esc_html__( '%s permission', 'ai-persona' ),
+										esc_html( $column_label )
+									);
+									?>
+								</span>
+							</label>
+						</td>
+					<?php endforeach; ?>
+				</tr>
+			<?php endforeach; ?>
+		</tbody>
+	</table>
+	<p class="description">
+		<?php esc_html_e( 'Administrators always retain full access. Adjust checkboxes to grant editors or other custom roles the ability to edit, publish, or delete personas.', 'ai-persona' ); ?>
+	</p>
+	<?php
+}
+
+/**
+ * Re-sync role capabilities whenever the option changes.
+ *
+ * @param mixed $old_value Prior value.
+ * @param mixed $value     New value.
+ * @return void
+ */
+function handle_role_capabilities_option_change( $old_value = null, $value = null ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
+	\Ai_Persona\Capabilities\sync_role_capabilities();
+}
+
+add_action( 'update_option_ai_persona_role_capabilities', __NAMESPACE__ . '\\handle_role_capabilities_option_change', 10, 2 );
+add_action( 'add_option_ai_persona_role_capabilities', __NAMESPACE__ . '\\handle_role_capabilities_option_change', 10, 2 );
 
 /**
  * Render the API key field.

@@ -37,60 +37,139 @@ function get_persona_capabilities() {
 }
 
 /**
+ * Default role assignments for persona capabilities.
+ *
+ * @return array
+ */
+function get_default_role_capabilities() {
+	return array(
+		'edit'    => array( 'administrator', 'editor' ),
+		'publish' => array( 'administrator', 'editor' ),
+		'delete'  => array( 'administrator' ),
+		'read'    => array( 'administrator', 'editor', 'author' ),
+	);
+}
+
+/**
+ * Retrieve all registered role slugs.
+ *
+ * @return string[]
+ */
+function get_all_role_slugs() {
+	$wp_roles = wp_roles();
+	return array_keys( $wp_roles->roles );
+}
+
+/**
+ * Sanitize the stored role capability configuration.
+ *
+ * @param array $value Raw option value.
+ * @return array
+ */
+function sanitize_role_capability_option( $value ) {
+	$defaults        = get_default_role_capabilities();
+	$available_roles = get_all_role_slugs();
+	$sanitized       = array();
+
+	if ( ! is_array( $value ) ) {
+		$value = array();
+	}
+
+	foreach ( $defaults as $group => $default_roles ) {
+		$selected = isset( $value[ $group ] ) ? (array) $value[ $group ] : $default_roles;
+		$selected = array_map( 'sanitize_key', $selected );
+		$selected = array_values( array_intersect( $selected, $available_roles ) );
+
+		if ( ! in_array( 'administrator', $selected, true ) ) {
+			$selected[] = 'administrator';
+		}
+
+		$sanitized[ $group ] = array_values( array_unique( $selected ) );
+	}
+
+	return $sanitized;
+}
+
+/**
+ * Fetch the persisted role capability configuration.
+ *
+ * @return array
+ */
+function get_role_settings() {
+	$option = get_option( 'ai_persona_role_capabilities', null );
+
+	if ( null === $option ) {
+		$option = get_default_role_capabilities();
+	}
+
+	return sanitize_role_capability_option( $option );
+}
+
+/**
+ * Apply persona capabilities to WordPress roles based on saved configuration.
+ */
+function sync_role_capabilities() {
+	$caps      = get_persona_capabilities();
+	$role_map  = get_role_settings();
+	$roles     = get_all_role_slugs();
+	$cap_groups = array(
+		'read'    => array_unique(
+			array(
+				$caps['read_post'],
+				$caps['read_private_posts'],
+			)
+		),
+		'edit'    => array_unique(
+			array(
+				$caps['edit_post'],
+				$caps['edit_posts'],
+				$caps['edit_others_posts'],
+				$caps['edit_published_posts'],
+				$caps['edit_private_posts'],
+			)
+		),
+		'publish' => array_unique(
+			array(
+				$caps['publish_posts'],
+			)
+		),
+		'delete'  => array_unique(
+			array(
+				$caps['delete_post'],
+				$caps['delete_posts'],
+				$caps['delete_others_posts'],
+				$caps['delete_published_posts'],
+				$caps['delete_private_posts'],
+			)
+		),
+	);
+
+	foreach ( $roles as $role_slug ) {
+		$role = get_role( $role_slug );
+
+		if ( ! $role ) {
+			continue;
+		}
+
+		foreach ( $cap_groups as $group => $capabilities ) {
+			$has_access = in_array( $role_slug, $role_map[ $group ], true );
+
+			foreach ( $capabilities as $capability ) {
+				if ( $has_access ) {
+					$role->add_cap( $capability );
+				} else {
+					$role->remove_cap( $capability );
+				}
+			}
+		}
+	}
+}
+
+/**
  * Apply persona capabilities to WordPress roles on activation.
  */
 function add_role_capabilities() {
-	$caps = get_persona_capabilities();
-
-	$roles = array(
-		'manage' => array( 'administrator' ),
-		'edit'   => array( 'administrator', 'editor' ),
-		'read'   => array( 'administrator', 'editor', 'author' ),
-	);
-
-	$manage_caps = array(
-		$caps['delete_posts'],
-		$caps['delete_others_posts'],
-		$caps['delete_published_posts'],
-		$caps['delete_private_posts'],
-	);
-
-	$edit_caps = array(
-		$caps['edit_posts'],
-		$caps['edit_others_posts'],
-		$caps['edit_published_posts'],
-		$caps['edit_private_posts'],
-		$caps['publish_posts'],
-	);
-
-	$read_caps = array(
-		$caps['read_post'],
-		$caps['read_private_posts'],
-	);
-
-	foreach ( $roles['manage'] as $role_slug ) {
-		if ( $role = get_role( $role_slug ) ) { // phpcs:ignore
-			foreach ( array_merge( $manage_caps, $edit_caps, $read_caps ) as $capability ) {
-				$role->add_cap( $capability );
-			}
-		}
-	}
-
-	foreach ( $roles['edit'] as $role_slug ) {
-		if ( $role = get_role( $role_slug ) ) { // phpcs:ignore
-			foreach ( array_merge( $edit_caps, $read_caps ) as $capability ) {
-				$role->add_cap( $capability );
-			}
-		}
-	}
-
-	foreach ( $roles['read'] as $role_slug ) {
-		if ( $role = get_role( $role_slug ) ) { // phpcs:ignore
-			foreach ( $read_caps as $capability ) {
-				$role->add_cap( $capability );
-			}
-		}
-	}
+	sync_role_capabilities();
 }
 
 /**
@@ -100,13 +179,15 @@ function remove_role_capabilities() {
 	$caps = get_persona_capabilities();
 	$all_caps = array_unique( array_values( $caps ) );
 
-	$roles = array( 'administrator', 'editor', 'author' );
+	foreach ( get_all_role_slugs() as $role_slug ) {
+		$role = get_role( $role_slug );
 
-	foreach ( $roles as $role_slug ) {
-		if ( $role = get_role( $role_slug ) ) { // phpcs:ignore
-			foreach ( $all_caps as $capability ) {
-				$role->remove_cap( $capability );
-			}
+		if ( ! $role ) {
+			continue;
+		}
+
+		foreach ( $all_caps as $capability ) {
+			$role->remove_cap( $capability );
 		}
 	}
 }

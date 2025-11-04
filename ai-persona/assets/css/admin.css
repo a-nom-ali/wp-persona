@@ -191,3 +191,31 @@
 	font-size: 0.9rem;
 	color: #475569;
 }
+
+.ai-persona-role-table {
+	width: 100%;
+	border-collapse: collapse;
+	margin-top: 0.5rem;
+}
+
+.ai-persona-role-table th,
+.ai-persona-role-table td {
+	border: 1px solid #dfe2e6;
+	padding: 0.5rem 0.75rem;
+	text-align: center;
+}
+
+.ai-persona-role-table th:first-child,
+.ai-persona-role-table td:first-child {
+	text-align: left;
+}
+
+.ai-persona-role-table__role {
+	font-weight: 600;
+}
+
+.ai-persona-role-table__checkbox {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+}

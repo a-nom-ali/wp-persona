@@ -37,6 +37,7 @@ The plugin prioritizes:
 - **Admin Interface**: Custom post type (`ai_persona`) for personas, with metaboxes for prompt components.
 - **AI-Assisted Refinement**: Launch the Prompt Wizard in wp-admin to generate role, guidelines, and guardrails from plain-language goals.
 - **Template Library**: Browse curated persona templates (support, content, compliance) and apply them as a starting point before tailoring.
+- **Role Permissions**: Configure which WordPress roles can read, edit, publish, and delete personas via Settings → AI Persona → Permissions.
 - **Structured Prompt Builder**:
   - Role: Define the AI's identity (e.g., "You are a helpful assistant specializing in...").
   - Guidelines: Behavioral rules (e.g., "Always respond concisely", "Use bullet points for lists").
@@ -176,7 +177,7 @@ Dynamic context: User is {{user_name}}, on page {{page_title}}.
 - **Nonces and Permissions**: Required for admin actions and API calls.
 - **Rate Limiting**: Filterable transient-based limits per user/IP.
 - **Logging**: Optional action for auditing generations.
-- **Role Capabilities**: The plugin grants create/read access to Editors and Authors by default while reserving destructive actions for Administrators. Override via the `ai_persona_capability_map` filter if your org needs bespoke permissions:
+- **Role Capabilities**: Administrators can fine-tune persona access for each role under *Settings → AI Persona → Permissions*. Override via the `ai_persona_capability_map` filter if your organisation needs bespoke capability names:
 
 ```php
 add_filter( 'ai_persona_capability_map', function ( $caps ) {
