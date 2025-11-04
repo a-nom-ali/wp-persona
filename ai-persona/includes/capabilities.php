@@ -213,3 +213,15 @@ function current_user_can_manage_personas() {
 
 	return true;
 }
+
+/**
+ * Ensure persona capabilities stay in sync on each request.
+ */
+function ensure_role_capabilities() {
+	if ( ! did_action( 'ai_persona_roles_synced' ) ) {
+		sync_role_capabilities();
+		do_action( 'ai_persona_roles_synced' );
+	}
+}
+
+add_action( 'init', __NAMESPACE__ . '\ensure_role_capabilities', 20 );
