@@ -49,3 +49,4 @@ The default Ollama provider runs locally and avoids transmitting content externa
 - Localization: run `./scripts/make-pot.sh` after string changes and update `languages/ai-persona.pot`. Playwright scaffolding sits in `tests/playwright/` for future smoke tests.
 - WordPress core tests live under `tests/wpunit/`; configure `WP_PHPUNIT__DIR` (see README) and provide a test database before running `composer test:wpunit`.
 - The admin builder now includes an AI-assisted Prompt Wizard; ensure `wp.apiFetch` is available and the REST endpoints are accessible when demoing refinement flows.
+- Persona builder ships with a template library (hook `ai_persona_template_library`); extend it or provide remote syncs to surface organisation-specific presets.

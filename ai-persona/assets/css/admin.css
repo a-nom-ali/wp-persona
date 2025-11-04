@@ -140,3 +140,54 @@
 	gap: 0.75rem;
 	margin-top: 1rem;
 }
+
+.ai-persona-templates__modal .components-modal__content {
+	padding-bottom: 1.5rem;
+}
+
+.ai-persona-templates__inner {
+	display: grid;
+	gap: 1rem;
+}
+
+.ai-persona-templates__intro {
+	margin: 0;
+	color: #334155;
+}
+
+.ai-persona-templates__empty {
+	margin: 0;
+	color: #64748b;
+	font-style: italic;
+}
+
+.ai-persona-templates__grid {
+	display: grid;
+	gap: 1rem;
+	grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+}
+
+.ai-persona-templates__card {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+}
+
+.ai-persona-templates__card .components-card__body {
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+	height: 100%;
+}
+
+.ai-persona-templates__highlights {
+	margin: 0;
+	padding-left: 1.25rem;
+	color: #1f2937;
+}
+
+.ai-persona-templates__footnote {
+	margin: 0;
+	font-size: 0.9rem;
+	color: #475569;
+}

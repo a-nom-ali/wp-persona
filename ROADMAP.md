@@ -37,6 +37,6 @@
 
 ## Backlog / Nice to Have
 - [x] AI-assisted prompt refinement wizard.
-- [ ] Persona template marketplace or syncing mechanism.
+- [x] Persona template marketplace or syncing mechanism.
 - [ ] Fine-grained capability mapping for persona creation vs usage.
 - [ ] Enhanced analytics dashboard with aggregated metrics and privacy guardrails.

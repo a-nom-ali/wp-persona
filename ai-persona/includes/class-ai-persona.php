@@ -61,6 +61,7 @@ final class Plugin {
 		require_once AI_PERSONA_PLUGIN_DIR . 'includes/class-api.php';
 		require_once AI_PERSONA_PLUGIN_DIR . 'includes/admin/metaboxes.php';
 		require_once AI_PERSONA_PLUGIN_DIR . 'includes/admin/settings.php';
+		require_once AI_PERSONA_PLUGIN_DIR . 'includes/admin/templates.php';
 		require_once AI_PERSONA_PLUGIN_DIR . 'includes/frontend/chat-widget.php';
 		require_once AI_PERSONA_PLUGIN_DIR . 'includes/frontend/design-tokens.php';
 		require_once AI_PERSONA_PLUGIN_DIR . 'includes/frontend/api-endpoints.php';
@@ -240,6 +241,16 @@ final class Plugin {
 			array( 'wp-element', 'wp-components', 'wp-i18n', 'wp-data', 'wp-compose' ),
 			AI_PERSONA_VERSION,
 			true
+		);
+
+		$templates = \Ai_Persona\Admin\get_persona_templates();
+
+		wp_localize_script(
+			'ai-persona-admin',
+			'AiPersonaAdmin',
+			array(
+				'templates' => $templates,
+			)
 		);
 
 		if ( function_exists( 'wp_set_script_translations' ) ) {

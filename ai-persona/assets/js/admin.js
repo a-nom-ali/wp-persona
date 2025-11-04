@@ -27,6 +27,8 @@
 		SelectControl,
 	} = wp.components;
 	const apiFetch = wp.apiFetch ? wp.apiFetch : null;
+	const adminData = window.AiPersonaAdmin || {};
+	const templateLibrary = Array.isArray( adminData.templates ) ? adminData.templates : [];
 
 	const uniqueId = ( () => {
 		let index = Date.now();
@@ -178,6 +180,8 @@
 			tone: '',
 			detail: 'balanced',
 		} );
+		const [ templateOpen, setTemplateOpen ] = useState( false );
+		const [ templateFilter, setTemplateFilter ] = useState( '' );
 
 		const canUseWizard = typeof apiFetch === 'function';
 
@@ -676,10 +680,127 @@
 			);
 		};
 
+		const applyTemplate = ( template ) => {
+			if ( ! template || ! template.payload ) {
+				return;
+			}
+
+			const payload = template.payload;
+
+			setState( {
+				role: payload.role || '',
+				guidelines: hydrateList( payload.guidelines || [] ),
+				constraints: hydrateList( payload.constraints || [] ),
+				examples: hydrateExamples( payload.examples || [] ),
+				variables: hydrateVariables( payload.variables || [] ),
+			} );
+
+			setTemplateOpen( false );
+		};
+
+		const renderTemplateModal = () => {
+			if ( ! templateOpen || ! Modal ) {
+				return null;
+			}
+
+			const filtered = templateLibrary.filter( ( template ) => {
+				if ( ! templateFilter ) {
+					return true;
+				}
+
+				const needle = templateFilter.toLowerCase();
+				const haystack = [ template.name, template.description ]
+					.concat( template.payload && template.payload.role ? [ template.payload.role ] : [] )
+					.join( ' ' )
+					.toLowerCase();
+
+				return haystack.includes( needle );
+			} );
+
+			return el(
+				Modal,
+				{
+					title: __( 'Persona templates', 'ai-persona' ),
+					onRequestClose: () => setTemplateOpen( false ),
+					className: 'ai-persona-templates__modal',
+				},
+				el(
+					'div',
+					{ className: 'ai-persona-templates__inner' },
+					el(
+						'p',
+						{ className: 'ai-persona-templates__intro' },
+						__( 'Start from curated templates and customise the details before publishing.', 'ai-persona' )
+					),
+					el( TextControl, {
+						label: __( 'Filter templates', 'ai-persona' ),
+						value: templateFilter,
+						onChange: ( value ) => setTemplateFilter( value ),
+						placeholder: __( 'Search by name or description…', 'ai-persona' ),
+					} ),
+					filtered.length === 0
+						? el(
+								'p',
+								{ className: 'ai-persona-templates__empty' },
+								__( 'No templates match your search. Try a different keyword.', 'ai-persona' )
+						  )
+						: el(
+								'div',
+								{ className: 'ai-persona-templates__grid' },
+								filtered.map( ( template ) =>
+									el(
+										Card,
+										{ key: template.id, className: 'ai-persona-templates__card' },
+										el(
+											CardHeader,
+											null,
+											el( 'h3', null, template.name || __( 'Untitled template', 'ai-persona' ) )
+										),
+										el(
+											CardBody,
+											null,
+											el( 'p', null, template.description || '' ),
+											template.payload && template.payload.guidelines
+												? el(
+														'ul',
+														{ className: 'ai-persona-templates__highlights' },
+														template.payload.guidelines.slice( 0, 2 ).map( ( line, index ) =>
+															el( 'li', { key: `${ template.id }-guideline-${ index }` }, line )
+														)
+												  )
+												: null,
+											el(
+												Button,
+												{
+													variant: 'primary',
+													onClick: () => applyTemplate( template ),
+												},
+												__( 'Use this template', 'ai-persona' )
+											)
+										)
+									)
+								)
+						  ),
+					templateLibrary.length
+						? el(
+								'p',
+								{ className: 'ai-persona-templates__footnote' },
+								__( 'Need more? Use the AI assistant to refine or extend the selected template.', 'ai-persona' )
+						  )
+						: el(
+								'p',
+								{ className: 'ai-persona-templates__empty' },
+								__( 'No templates found. Register templates via the ai_persona_template_library filter.', 'ai-persona' )
+						  )
+				)
+			);
+		};
+
 		return el(
 			Fragment,
 			null,
 			renderWizardModal(),
+			renderTemplateModal(),
 			el(
 				'div',
 				{ className: 'ai-persona-builder' },
@@ -703,11 +824,25 @@
 						__( 'Refine with AI assistant', 'ai-persona' )
 					),
 					el(
+						Button,
+						{
+							variant: 'secondary',
+							onClick: () => setTemplateOpen( true ),
+							disabled: templateLibrary.length === 0,
+						},
+						__( 'Browse templates', 'ai-persona' )
+					),
+					el(
 						'span',
 						{ className: 'ai-persona-builder__toolbar-hint' },
-						canUseWizard
-							? __( 'Generate starter guidelines from natural language goals.', 'ai-persona' )
-							: __( 'wp.apiFetch unavailable on this screen; wizard disabled.', 'ai-persona' )
+						[
+							canUseWizard
+								? __( 'Generate starter guidelines from natural language goals.', 'ai-persona' )
+								: __( 'wp.apiFetch unavailable on this screen; wizard disabled.', 'ai-persona' ),
+							templateLibrary.length
+								? __( 'Load curated templates to accelerate persona authoring.', 'ai-persona' )
+								: __( 'Add templates via the ai_persona_template_library filter to enable browsing.', 'ai-persona' ),
+						].join( ' • ' )
 					)
 				),
 				el(

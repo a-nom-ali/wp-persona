@@ -36,6 +36,7 @@ The plugin prioritizes:
 ### Persona Creation and Management
 - **Admin Interface**: Custom post type (`ai_persona`) for personas, with metaboxes for prompt components.
 - **AI-Assisted Refinement**: Launch the Prompt Wizard in wp-admin to generate role, guidelines, and guardrails from plain-language goals.
+- **Template Library**: Browse curated persona templates (support, content, compliance) and apply them as a starting point before tailoring.
 - **Structured Prompt Builder**:
   - Role: Define the AI's identity (e.g., "You are a helpful assistant specializing in...").
   - Guidelines: Behavioral rules (e.g., "Always respond concisely", "Use bullet points for lists").
@@ -58,6 +59,7 @@ The plugin prioritizes:
   - `ai_persona_design_tokens`: Extend the design-token map that styles the chat UI.
   - `ai_persona_chat_attributes`: Tweak shortcode/block attributes prior to render.
   - `ai_persona_rest_permissions_check`: Override REST authentication handling (return `true` to allow or a `WP_Error` to block).
+  - `ai_persona_template_library`: Inject additional persona templates into the admin template browser.
 
 ### Technical Details
 - **API Integration**: OpenAI Chat Completions (gpt-4o-mini default); filterable for other endpoints.
