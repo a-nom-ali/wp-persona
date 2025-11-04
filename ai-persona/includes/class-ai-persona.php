@@ -65,6 +65,7 @@ final class Plugin {
 		require_once AI_PERSONA_PLUGIN_DIR . 'includes/frontend/chat-widget.php';
 		require_once AI_PERSONA_PLUGIN_DIR . 'includes/frontend/design-tokens.php';
 		require_once AI_PERSONA_PLUGIN_DIR . 'includes/frontend/api-endpoints.php';
+		require_once AI_PERSONA_PLUGIN_DIR . 'includes/capabilities.php';
 		require_once AI_PERSONA_PLUGIN_DIR . 'includes/persona.php';
 		require_once AI_PERSONA_PLUGIN_DIR . 'includes/logging.php';
 		require_once AI_PERSONA_PLUGIN_DIR . 'includes/providers/interface-provider.php';
@@ -103,7 +104,8 @@ final class Plugin {
 			'show_ui'            => true,
 			'show_in_rest'       => true,
 			'supports'           => array( 'title', 'editor' ),
-			'capability_type'    => 'post',
+			'capability_type'    => 'ai_persona',
+			'map_meta_cap'       => true,
 			'menu_position'      => 26,
 			'menu_icon'          => 'dashicons-robot',
 		);
@@ -250,6 +252,7 @@ final class Plugin {
 			'AiPersonaAdmin',
 			array(
 				'templates' => $templates,
+				'caps'      => \Ai_Persona\Capabilities\get_persona_capabilities(),
 			)
 		);
 
